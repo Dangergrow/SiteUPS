@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONTEK — Подбор и сравнение</title>
+<style>
+:root {
+  --bg: #0f1219; --bg-card: #171b26; --bg-elevated: #1e2333;
+  --border: #2a3040; --text: #e1e4ea; --text-secondary: #9299a8;
+  --accent: #3b82f6; --accent-hover: #2563eb; --accent-muted: rgba(59,130,246,0.12);
+  --green: #10b981; --green-bg: rgba(16,185,129,0.12);
+  --red: #ef4444; --red-bg: rgba(239,68,68,0.12);
+  --amber: #f59e0b; --amber-bg: rgba(245,158,11,0.12);
+  --radius: 10px; --radius-sm: 6px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Segoe UI,system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+.container{max-width:1600px;margin:0 auto;padding:20px}
+.header{background:var(--bg-card);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;flex-wrap:wrap}
+.header-logo{font-size:22px;font-weight:700;letter-spacing:3px;color:#fff}
+.header-sub{color:var(--text-secondary);font-size:13px}
+.tab-bar{display:flex;gap:4px;margin-left:auto;background:var(--bg-elevated);padding:3px;border-radius:var(--radius-sm)}
+.tab-btn{background:transparent;border:none;color:var(--text-secondary);padding:6px 18px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;white-space:nowrap}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{background:var(--accent);color:#fff}
+.stats-bar{display:flex;gap:20px;flex-wrap:wrap;margin:16px 0}
+.stat{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;font-size:13px}
+.stat span{color:var(--accent);font-weight:600;font-size:18px}
+.filters-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px}
+.filter-section{margin-bottom:14px}
+.filter-section:last-child{margin-bottom:0}
+.filter-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-secondary);margin-bottom:6px;font-weight:600}
+.filter-row{display:flex;flex-wrap:wrap;gap:6px}
+.filter-btn{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-secondary);padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px;transition:all .15s;white-space:nowrap}
+.filter-btn:hover{border-color:var(--accent);color:var(--text)}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.reset-btn{background:transparent;border:1px dashed var(--border);color:var(--text-secondary);padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px}
+.reset-btn:hover{border-color:var(--red);color:var(--red)}
+.section-title{font-size:18px;font-weight:700;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+.section-count{font-size:12px;color:var(--text-secondary);font-weight:400;background:var(--bg-elevated);padding:2px 10px;border-radius:12px}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:8px}
+.product-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:all .15s;position:relative}
+.product-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.product-card.selected{border-color:var(--accent);background:var(--accent-muted)}
+.product-card.selected::after{content:"\2713";position:absolute;top:10px;right:14px;width:24px;height:24px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700}
+.product-series{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);font-weight:600;margin-bottom:4px}
+.product-name{font-size:16px;font-weight:700;margin-bottom:8px}
+.product-tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--bg-elevated);color:var(--text-secondary)}
+.tag.power{background:var(--green-bg);color:var(--green)}
+.tag.battery{background:var(--amber-bg);color:var(--amber)}
+.tag.pf{background:var(--accent-muted);color:var(--accent)}
+.tag.type{background:rgba(99,102,241,0.12);color:#a5b4fc}
+.hidden-card{display:none}
+.no-results{text-align:center;padding:40px;color:var(--text-secondary);font-size:14px;grid-column:1/-1}
+.compare-bar{position:sticky;bottom:0;background:var(--bg-card);border-top:2px solid var(--accent);padding:14px 20px;display:flex;align-items:center;gap:12px;z-index:100;flex-wrap:wrap}
+.compare-bar-label{font-size:13px;color:var(--text-secondary);white-space:nowrap}
+.compare-chips{display:flex;gap:8px;flex-wrap:wrap;flex:1;align-items:center}
+.compare-chip{background:var(--accent-muted);border:1px solid var(--accent);color:var(--accent);padding:4px 10px;border-radius:16px;font-size:12px;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.compare-chip-remove{cursor:pointer;font-size:16px;line-height:1;opacity:.7}
+.compare-chip-remove:hover{opacity:1;color:var(--red)}
+.compare-actions{display:flex;gap:8px;margin-left:auto}
+.btn{padding:10px 22px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:14px;font-weight:600;transition:all .15s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-secondary{background:var(--bg-elevated);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--text-secondary)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red)}
+.btn-danger:hover{background:var(--red-bg)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-diff{background:transparent;color:var(--amber);border:2px solid var(--amber);padding:6px 18px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s;white-space:nowrap}
+.btn-diff:hover{background:var(--amber-bg)}
+.btn-diff.active{background:var(--amber);color:#000;box-shadow:0 0 12px var(--amber)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;padding:20px}
+.modal-overlay.open{display:block}
+.modal{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);max-width:100%;margin:0 auto;display:flex;flex-direction:column;max-height:calc(100vh - 40px)}
+.modal-header{background:var(--bg-card);padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius) var(--radius) 0 0;gap:12px}
+.modal-title{font-size:18px;font-weight:700;white-space:nowrap}
+.modal-close{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.modal-close:hover{background:var(--red-bg);border-color:var(--red)}
+.spec-toggles{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0}
+.spec-toggle{font-size:12px;padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-secondary);cursor:pointer;transition:all .15s;white-space:nowrap}
+.spec-toggle.active{background:var(--accent-muted);border-color:var(--accent);color:var(--accent)}
+.spec-toggle:hover{border-color:var(--text-secondary)}
+.table-wrap{overflow:auto;flex:1;padding:0 24px 24px}
+.compare-table{width:100%;border-collapse:collapse;font-size:12px;min-width:800px}
+.compare-table th,.compare-table td{padding:8px 12px;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle}
+.compare-table th{background:var(--bg-elevated);font-weight:600;position:sticky;top:0;z-index:5;white-space:nowrap}
+.compare-table th:first-child{text-align:left;min-width:200px;position:sticky;left:0;z-index:7;background:var(--bg-elevated)}
+.compare-table td:first-child{text-align:left;font-weight:500;background:var(--bg-card);position:sticky;left:0;z-index:3;color:var(--text-secondary);white-space:nowrap}
+.compare-table tr.spec-group-header td{background:var(--bg-elevated);color:var(--accent);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;padding:10px 12px;text-align:left}
+.compare-table tr.spec-group-header td:first-child{background:var(--bg-elevated)}
+.compare-table tr:hover td{background:rgba(255,255,255,.02)}
+.compare-table tr.spec-group-header:hover td{background:var(--bg-elevated)}
+.remove-model-btn{display:block;margin:0 auto 2px;background:transparent;border:1px solid transparent;color:var(--text-secondary);cursor:pointer;font-size:16px;padding:0 4px;border-radius:4px}
+.remove-model-btn:hover{color:var(--red);border-color:var(--red)}
+.data-source{font-size:10px;color:var(--text-secondary);font-style:italic;display:block;text-align:center}
+::-webkit-scrollbar{height:6px;width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.dis-wrap{overflow:auto;max-height:70vh;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-top:12px}
+.dis-table{border-collapse:collapse;font-size:12px}
+.dis-table th,.dis-table td{padding:5px 8px;border:1px solid var(--border);text-align:center;white-space:nowrap}
+.dis-table th{background:var(--bg-elevated);font-weight:600;position:sticky;top:0;z-index:4}
+.dis-table th:first-child{left:0;z-index:6}
+.dis-table td:first-child{background:var(--bg-card);font-weight:500;position:sticky;left:0;z-index:3;text-align:right;color:var(--text-secondary)}
+.dis-table td.kw-val{color:var(--accent)}
+.dis-filter-active{background:var(--accent-muted)!important;border-color:var(--accent)!important;color:var(--accent)!important}
+.dis-controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;align-items:center}
+.dis-controls select,.dis-controls input{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:var(--radius-sm);font-size:13px;font-family:inherit}
+.dis-controls select option{background:var(--bg-card);color:var(--text)}
+.dis-controls label{font-size:13px;color:var(--text-secondary);white-space:nowrap}
+@media(max-width:768px){.container{padding:10px}.product-grid{grid-template-columns:1fr}.compare-bar{flex-direction:column;align-items:flex-start}.compare-actions{margin-left:0}.tab-bar{margin-left:0;width:100%}.header{flex-direction:column;align-items:stretch}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="header-logo">ONTEK</div>
+  <div style="display:flex;align-items:center;gap:16px;flex:1;flex-wrap:wrap">
+    <div class="header-sub" id="headerSub">Подбор и сравнение ИБП — все технические характеристики</div>
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="ups">ИБП</button>
+      <button class="tab-btn" data-tab="bat">Батарейные модули</button>
+      <button class="tab-btn" data-tab="dis">Разрядные таблицы</button>
+    </div>
+  </div>
+</header>
+<main class="container">
+<div class="stats-bar">
+  <div class="stat">Всего моделей: <span id="statTotal">0</span></div>
+  <div class="stat">Выбрано: <span id="statSelected">0</span></div>
+  <div class="stat"><span id="statLabel2">Трехфазных:</span> <span id="statP1">0</span></div>
+  <div class="stat"><span id="statLabel3">Однофазных:</span> <span id="statP2">0</span></div>
+</div>
+<div class="filters-wrap" id="filtersWrap">
+  <div class="filter-section" id="filterCat">
+    <div class="filter-label">Категория</div>
+    <div class="filter-row" id="filterCatRow"></div>
+  </div>
+  <div class="filter-section" id="filterPower">
+    <div class="filter-label" id="filterPowerLabel">Мощность (кВА)</div>
+    <div class="filter-row" id="filterPowerRow"></div>
+  </div>
+  <div class="filter-section" id="filterOther">
+    <div class="filter-label" id="filterOtherLabel">Дополнительно</div>
+    <div class="filter-row" id="filterOtherRow"></div>
+  </div>
+  <div class="filter-section">
+    <div class="filter-label">Серия</div>
+    <div class="filter-row" id="seriesFilters"></div>
+  </div>
+  <div class="filter-section">
+    <button class="reset-btn" id="resetFilters">Сбросить все фильтры</button>
+  </div>
+</div>
+<div id="productGrid"></div>
+<div id="disTabContent" style="display:none">
+  <div class="dis-controls">
+    <label>Серия:</label>
+    <select id="disSeriesFilter"><option value="all">Все</option><option value="DBCL">DBCL</option><option value="DBCM">DBCM</option></select>
+    <label>Модель:</label>
+    <select id="disModelFilter"><option value="all">Все</option></select>
+    <label>Мощность (кВт):</label>
+    <select id="disPowerFilter"><option value="all">Все</option></select>
+    <button class="btn btn-primary" id="disRefresh" style="padding:6px 14px;font-size:13px">Обновить</button>
+  </div>
+  <div class="dis-wrap" id="disTableWrap"><p style="color:var(--text-secondary);padding:20px;text-align:center">Выберите модель для отображения разрядной таблицы</p></div>
+</div>
+</main>
+<div class="compare-bar" id="compareBar">
+  <div class="compare-bar-label">Сравнение:</div>
+  <div class="compare-chips" id="compareChips"></div>
+  <div class="compare-actions">
+    <button class="btn btn-danger" id="clearCompare" disabled>Очистить</button>
+    <button class="btn btn-primary" id="openCompare" disabled>Сравнить (0)</button>
+  </div>
+</div>
+<div class="modal-overlay" id="compareModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Сравнение</div>
+      <button class="btn-diff" id="diffToggle">Только различия</button>
+      <button class="modal-close" id="closeModal">&times;</button>
+    </div>
+    <div class="spec-toggles" id="specToggles"></div>
+    <div class="table-wrap">
+      <table class="compare-table" id="compareTable"></table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== HELPERS =====
+function M(overrides) {
+  const base = {b_Общие:{},b_Вход:{},b_Выход:{},b_Байпас:{},b_КПД:{},b_Батареи:{},b_Физические:{},b_Интерфейсы:{},b_Среда:{}};
+  for (const [grp,vals] of Object.entries(overrides)) { if (!base[grp]) base[grp] = {}; Object.assign(base[grp], vals); }
+  const d = {};
+  for (const [g,v] of Object.entries(base)) { if (Object.keys(v).length > 0) d[g] = v; }
+  return d;
+}
+
+const UPS_SG_ORDER = ["b_Общие","b_Вход","b_Выход","b_Байпас","b_КПД","b_Батареи","b_Физические","b_Интерфейсы","b_Среда"];
+const UPS_SG_LABELS = {b_Общие:"Общие параметры",b_Вход:"Входные характеристики",b_Выход:"Выходные характеристики",b_Байпас:"Байпас",b_КПД:"КПД",b_Батареи:"Батареи и ЗУ",b_Физические:"Физические параметры",b_Интерфейсы:"Интерфейсы",b_Среда:"Окр. среда и гарантия"};
+const BAT_SG_ORDER = ["g_Общие","g_Электрические","g_Батарейный_массив","g_Защита","g_Физические","g_Среда"];
+const BAT_SG_LABELS = {g_Общие:"Общие параметры",g_Электрические:"Электрические характеристики",g_Батарейный_массив:"Батарейный массив",g_Защита:"Защита",g_Физические:"Физические параметры",g_Среда:"Окр. среда и гарантия"};
+
+// PM BASE SPECS
+const PM_BASE_INPUT_10_20 = {"Ном. напряжение":"1x220/230/240 В или 3x380/400/415 В","Диапазон напряжений":"110-300 В (50% нагр.) / 176-276 В (100% нагр.)","Диапазон частот":"46-54 Гц или 56-64 Гц","THDi":"<4% (100% лин.)","Коэфф. мощности":">=0,99"};
+const PM_BASE_INPUT_30_80 = {"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"110-300 В (50%) / 176-276 В (100%)","Диапазон частот":"40-70 Гц","THDi":"<4% (100% лин.)","Коэфф. мощности":">=0,99"};
+const PM_BASE_OUTPUT_MULTI = {"Выходное напряжение":"1x220/230/240 В или 3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Переход на бат/байпас":"0 мс","Перегрузка":"100-110% 60 мин, 111-125% 10 мин, 126-150% 1 мин, >150% немедл."};
+const PM_BASE_OUTPUT_3PH = {"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Переход на бат/байпас":"0 мс","Перегрузка":"100-110% 60 мин, 111-125% 10 мин, 126-150% 1 мин, >150% немедл."};
+const PM_BASE_BYPASS_MULTI = {"Ном. напряжение":"1x220/230/240 В или 3x380/400/415 В","Диапазон напряжения":"-30% +20% (регулируемый)","Частота":"46-54 Гц или 56-64 Гц"};
+const PM_BASE_BYPASS_3PH = {"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"};
+const PM_BASE_INTERFACES = {"Дисплей":"Сенсорный цветной ЖК 5''","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 4 вых. реле","Датчик температуры":"В комплекте","Опционально":"SNMP, датчик окр. среды"};
+const PM_BASE_ENV = {"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС 004/2011, ТР ТС 020/2011, ISO 9001","Гарантия":"3 года (до 5 лет)"};
+function PM_BAT_EXT(cnt, amps) { return {"Тип":"Зависит от задачи (внешние)","Количество":cnt,"Зарядный ток":"1-"+amps+" А","Напряжение заряда":"+-13,65VxN","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"}; }
+function PM_BAT_INT(cnt, years) { return {"Тип":"12V / 9Ah (внутренние)","Количество":cnt,"Срок службы":years||"5 лет (10 лет опционально)","Время заряда":"4 ч до 90%","Внешние АКБ":"Можно подключить","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"}; }
+
+// ===== UPS DATA =====
+let U = [
+  {id:"pm10-20",series:"PM",cat:"three-phase",name:"PM10/20",pwr:10,kw:10,ph:"Мультифазный",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"10 кВА / 10 кВт",Фазность:"Мультифазный (3:3,3:1,1:1)",PF:"1","Паралл.":"До 4 ИБП","Встр. АВ":"4 шт (осн.вх, вых, байпас, мех.байпас)","Расп. АВ":"Сзади","Подключение":"Два ввода","Ввод кабеля":"Снизу сзади"},b_Вход:PM_BASE_INPUT_10_20,b_Выход:PM_BASE_OUTPUT_MULTI,b_Байпас:PM_BASE_BYPASS_MULTI,b_КПД:{"От сети":"95,5%","ЭКО":"98,5%","От батареи":"94,5%"},b_Батареи:{Тип:"Зависит от задачи",Количество:"20 шт","Зарядный ток":"1-12 А","Напряжение заряда":"+-13,65VxN (N=10)","Метод заряда":"Трехступенчатый",Термокомпенсация:"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"250x826x630 мм","Вес нетто":"38 кг","Уровень шума":"<60 дБ (1м)"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+  {id:"pm10-32",series:"PM",cat:"three-phase",name:"PM10/32",pwr:10,kw:10,ph:"Мультифазный",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"10 кВА / 10 кВт",Фазность:"Мультифазный (3:3,3:1,1:1)",PF:"1","Паралл.":"До 4 ИБП","Встр. АВ":"4 шт","Расп. АВ":"Сзади","Подключение":"Два ввода","Ввод кабеля":"Снизу сзади"},b_Вход:PM_BASE_INPUT_10_20,b_Выход:PM_BASE_OUTPUT_MULTI,b_Байпас:PM_BASE_BYPASS_MULTI,b_КПД:{"От сети":"95,5%","ЭКО":"98,5%","От батареи":"94,5%"},b_Батареи:PM_BAT_EXT("32-40 (регулируемое)",12),b_Физические:{"Габариты ШхВхГ":"250x826x630 мм","Вес нетто":"40 кг","Уровень шума":"<60 дБ"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+  {id:"pm10sb-20",series:"PM",cat:"three-phase",name:"PM10SB/20",pwr:10,kw:10,ph:"Мультифазный",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"10 кВА / 10 кВт",Фазность:"Мультифазный (3:3,3:1,1:1)",PF:"1","Паралл.":"До 4 ИБП","Встр. АВ":"4 шт"},b_Вход:PM_BASE_INPUT_10_20,b_Выход:PM_BASE_OUTPUT_MULTI,b_Байпас:PM_BASE_BYPASS_MULTI,b_КПД:{"От сети":"95,5%","ЭКО":"98,5%","От батареи":"94,5%"},b_Батареи:PM_BAT_INT("20 шт","5 лет"),b_Физические:{"Габариты ШхВхГ":"250x826x630 мм","Вес нетто":"126 кг","Уровень шума":"<60 дБ"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+  {id:"pm10sb-32",series:"PM",cat:"three-phase",name:"PM10SB/32",pwr:10,kw:10,ph:"Мультифазный",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"10 кВА / 10 кВт",Фазность:"Мультифазный (3:3,3:1,1:1)",PF:"1","Паралл.":"До 4 ИБП"},b_Вход:PM_BASE_INPUT_10_20,b_Выход:PM_BASE_OUTPUT_MULTI,b_Байпас:PM_BASE_BYPASS_MULTI,b_КПД:{"От сети":"95,5%","ЭКО":"98,5%","От батареи":"94,5%"},b_Батареи:PM_BAT_INT("32 шт","5 лет"),b_Физические:{"Габариты ШхВхГ":"250x826x630 мм","Вес нетто":"138 кг","Уровень шума":"<60 дБ"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+  {id:"pm15",series:"PM",cat:"three-phase",name:"PM15",pwr:15,kw:15,ph:"Мультифазный",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"15 кВА / 15 кВт",Фазность:"Мультифазный",PF:"1","Паралл.":"До 4 ИБП","Встр. АВ":"4 шт"},b_Вход:PM_BASE_INPUT_10_20,b_Выход:PM_BASE_OUTPUT_MULTI,b_Байпас:PM_BASE_BYPASS_MULTI,b_КПД:{"От сети":"95,5%","ЭКО":"98,5%","От батареи":"94,5%"},b_Батареи:PM_BAT_EXT("32-40",12),b_Физические:{"Габариты ШхВхГ":"250x826x630 мм","Вес нетто":"42 кг","Уровень шума":"<65 дБ"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+  {id:"pm15sb",series:"PM",cat:"three-phase",name:"PM15SB",pwr:15,kw:15,ph:"Мультифазный",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"15 кВА / 15 кВт","Паралл.":"До 4 ИБП",PF:"1",Фазность:"Мультифазный"},b_Вход:PM_BASE_INPUT_10_20,b_Выход:PM_BASE_OUTPUT_MULTI,b_Байпас:PM_BASE_BYPASS_MULTI,b_КПД:{"От сети":"95,5%","ЭКО":"98,5%","От батареи":"94,5%"},b_Батареи:PM_BAT_INT("32 шт","5 лет"),b_Физические:{"Габариты ШхВхГ":"250x826x630 мм","Вес нетто":"141 кг","Уровень шума":"<65 дБ"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+  {id:"pm20",series:"PM",cat:"three-phase",name:"PM20",pwr:20,kw:20,ph:"Мультифазный",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"20 кВА / 20 кВт",Фазность:"Мультифазный (3:3,3:1,1:1)",PF:"1","Паралл.":"До 4 ИБП","Встр. АВ":"4 шт","Расп. АВ":"Сзади"},b_Вход:PM_BASE_INPUT_10_20,b_Выход:PM_BASE_OUTPUT_MULTI,b_Байпас:PM_BASE_BYPASS_MULTI,b_КПД:{"От сети":"95,5%","ЭКО":"98,5%","От батареи":"94,5%"},b_Батареи:PM_BAT_EXT("32-40",12),b_Физические:{"Габариты ШхВхГ":"250x826x630 мм","Вес нетто":"43 кг","Уровень шума":"<65 дБ"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+  {id:"pm20sb",series:"PM",cat:"three-phase",name:"PM20SB",pwr:20,kw:20,ph:"Мультифазный",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"20 кВА / 20 кВт",Фазность:"Мультифазный",PF:"1","Паралл.":"До 4 ИБП"},b_Вход:PM_BASE_INPUT_10_20,b_Выход:PM_BASE_OUTPUT_MULTI,b_Байпас:PM_BASE_BYPASS_MULTI,b_КПД:{"От сети":"95,5%","ЭКО":"98,5%","От батареи":"94,5%"},b_Батареи:PM_BAT_INT("32 шт","5 лет"),b_Физические:{"Габариты ШхВхГ":"250x826x630 мм","Вес нетто":"142 кг","Уровень шума":"<65 дБ"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+  {id:"pm30",series:"PM",cat:"three-phase",name:"PM30",pwr:30,kw:30,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"30 кВА / 30 кВт",Фазность:"3-фазный вход / 3-фазный выход",PF:"1","Паралл.":"До 4 ИБП","Встр. АВ":"4 шт","Расп. АВ":"Сзади"},b_Вход:PM_BASE_INPUT_30_80,b_Выход:PM_BASE_OUTPUT_3PH,b_Байпас:PM_BASE_BYPASS_3PH,b_КПД:{"От сети":"95,5%","ЭКО":"98,5%","От батареи":"94,5%"},b_Батареи:PM_BAT_EXT("32-40",12),b_Физические:{"Габариты ШхВхГ":"300x1000x815 мм","Вес нетто":"60 кг","Уровень шума":"<65 дБ"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+  {id:"pm30sb",series:"PM",cat:"three-phase",name:"PM30SB",pwr:30,kw:30,ph:"3/3",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"30 кВА / 30 кВт",Фазность:"3-фазный вх/вых (3:3)",PF:"1","Паралл.":"До 4 ИБП","Встр. АВ":"4 шт"},b_Вход:PM_BASE_INPUT_30_80,b_Выход:PM_BASE_OUTPUT_3PH,b_Байпас:PM_BASE_BYPASS_3PH,b_КПД:{"От сети":"95,5%","ЭКО":"98,5%","От батареи":"94,5%"},b_Батареи:{Тип:"12V / 9Ah (внутренние)",Количество:"32x2 шт","Срок службы":"5 лет (10 лет опц.)","Время заряда":"9 ч до 90%","Зарядный ток":"1-12 А","Внешние АКБ":"Можно подключить","Метод заряда":"Трехступенчатый",Термокомпенсация:"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"300x1000x815 мм","Вес нетто":"230 кг","Уровень шума":"<65 дБ"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+  {id:"pm40",series:"PM",cat:"three-phase",name:"PM40",pwr:40,kw:40,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"40 кВА / 40 кВт",Фазность:"3-фазный вх/вых",PF:"1","Паралл.":"До 6 ИБП","Встр. АВ":"4 шт","Расп. АВ":"Сзади"},b_Вход:{...PM_BASE_INPUT_30_80,"Диапазон напряжений":"-30% +20%"},b_Выход:PM_BASE_OUTPUT_3PH,b_Байпас:PM_BASE_BYPASS_3PH,b_КПД:{"От сети":"96%","ЭКО":"99%","От батареи":"96%"},b_Батареи:{...PM_BAT_EXT("32-40",16),"Зарядный ток":"1-16 А"},b_Физические:{"Габариты ШхВхГ":"300x1000x815 мм","Вес нетто":"67 кг","Уровень шума":"<63 дБ"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+  {id:"pm40sb",series:"PM",cat:"three-phase",name:"PM40SB",pwr:40,kw:40,ph:"3/3",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"40 кВА / 40 кВт",Фазность:"3-фазный вх/вых (3:3)",PF:"1","Паралл.":"До 6 ИБП","Встр. АВ":"4 шт"},b_Вход:{...PM_BASE_INPUT_30_80,"Диапазон напряжений":"-30% +20%"},b_Выход:PM_BASE_OUTPUT_3PH,b_Байпас:PM_BASE_BYPASS_3PH,b_КПД:{"От сети":"96%","ЭКО":"99%","От батареи":"96%"},b_Батареи:{Тип:"12V / 9Ah (внутренние)",Количество:"32x2 шт","Срок службы":"5 лет (10 лет опц.)","Время заряда":"9 ч до 90%","Зарядный ток":"1-16 А","Внешние АКБ":"Можно подключить","Метод заряда":"Трехступенчатый",Термокомпенсация:"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"300x1000x815 мм","Вес нетто":"260 кг","Уровень шума":"<63 дБ"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+  {id:"pm60",series:"PM",cat:"three-phase",name:"PM60",pwr:60,kw:60,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"60 кВА / 60 кВт",Фазность:"3-фазный вх/вых",PF:"1","Паралл.":"До 4 ИБП","Встр. АВ":"4 шт","Расп. АВ":"Сзади"},b_Вход:PM_BASE_INPUT_30_80,b_Выход:PM_BASE_OUTPUT_3PH,b_Байпас:PM_BASE_BYPASS_3PH,b_КПД:{"От сети":"95,5%","ЭКО":"98,5%","От батареи":"94,5%"},b_Батареи:{...PM_BAT_EXT("32-40",18),"Зарядный ток":"1-18 А"},b_Физические:{"Габариты ШхВхГ":"300x1010x790 мм","Вес нетто":"108 кг","Уровень шума":"<70 дБ"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+  {id:"pm80",series:"PM",cat:"three-phase",name:"PM80",pwr:80,kw:80,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"80 кВА / 80 кВт",Фазность:"3-фазный вх/вых",PF:"1","Паралл.":"До 6 ИБП","Встр. АВ":"4 шт","Расп. АВ":"Спереди"},b_Вход:{...PM_BASE_INPUT_30_80,"Диапазон напряжений":"-30% +20%"},b_Выход:PM_BASE_OUTPUT_3PH,b_Байпас:PM_BASE_BYPASS_3PH,b_КПД:{"От сети":"96%","ЭКО":"99%","От батареи":"96%"},b_Батареи:{...PM_BAT_EXT("32-40",32),"Зарядный ток":"2-32 А"},b_Физические:{"Габариты ШхВхГ":"360x1010x790 мм","Вес нетто":"113 кг","Уровень шума":"<65 дБ"},b_Интерфейсы:PM_BASE_INTERFACES,b_Среда:PM_BASE_ENV})},
+
+  // PM RACK
+  {id:"pm-rack-10",series:"PM RACK",cat:"three-phase",name:"PM RACK 10",pwr:10,kw:10,ph:"Мультифазный",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"10 кВА / 10 кВт",Фазность:"3:3 (стандартно); 3:1, 1:1 (опция)",PF:"1","Паралл.":"До 8 ИБП (общая батарея)","Формат":"Rack/Tower 3U","Встр. АВ":"Встроенные","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В (1ф - опция)","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В (1ф - опция)","Стабилизация":"+-1%","Частота (сеть)":"+-1/2/4/5/10%","Частота (бат.)":"50/60 Гц +-0,1%","Крест-фактор":"3:1","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин, 150% 1 мин, >150% байпас"},b_Байпас:{"Диапазон напряжения":"Верх: +10/+15/+20/+25%, Низ: -10/-20/-30/-45%","Частота":"50/60 Гц +-10%"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Количество":"30-50 шт","Зарядный ток":"1-5 А","Ном. напряжение":"480 В (360-600 В)","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"440x130x720 мм [3U]","Вес нетто":"30 кг","Степень защиты":"IP20"},b_Интерфейсы:{"Дисплей":"7'' сенсорный, русский язык","Порты":"RS-232, USB, Modbus (RS485)","EMBS":"Разъем байпасного переключателя","Опционально":"SNMP, релейная карта, паралл. комплект"},b_Среда:{"Температура":"0-40C","Влажность":"0-95% без конденсата","Уровень шума":"51 дБ","Высота":"До 1500 м","Сертификация":"ЕАЭС ТР ТС, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"pm-rack-20",series:"PM RACK",cat:"three-phase",name:"PM RACK 20",pwr:20,kw:20,ph:"Мультифазный",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"20 кВА / 20 кВт",Фазность:"3:3 (ст.)/ 3:1,1:1 (опц.)",PF:"1","Паралл.":"До 8 ИБП","Формат":"Rack/Tower 3U"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3%","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин, 150% 1 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Количество":"30-50 шт","Зарядный ток":"1-5 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"440x130x720 мм [3U]","Вес нетто":"~33 кг","Степень защиты":"IP20"},b_Интерфейсы:{"Дисплей":"7'' сенсорный","Порты":"RS-232, USB, Modbus","Опционально":"SNMP"},b_Среда:{"Температура":"0-40C","Уровень шума":"~53 дБ","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"pm-rack-30",series:"PM RACK",cat:"three-phase",name:"PM RACK 30",pwr:30,kw:30,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"30 кВА / 30 кВт",Фазность:"3/3",PF:"1","Паралл.":"До 8 ИБП","Формат":"Rack/Tower 3U"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3%","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Количество":"30-50 шт","Зарядный ток":"1-8 А","Ном. напряжение":"480 В","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"440x130x720 мм [3U]","Вес нетто":"~37 кг","Степень защиты":"IP20"},b_Интерфейсы:{"Дисплей":"7'' сенсорный","Порты":"RS-232, USB, Modbus"},b_Среда:{"Температура":"0-40C","Уровень шума":"~55 дБ","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"pm-rack-40",series:"PM RACK",cat:"three-phase",name:"PM RACK 40",pwr:40,kw:40,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"40 кВА / 40 кВт",Фазность:"3/3",PF:"1","Паралл.":"До 8 ИБП","Формат":"Rack/Tower 3U"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3%"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Количество":"30-50 шт","Зарядный ток":"1-8 А","Ном. напряжение":"480 В"},b_Физические:{"Габариты ШхВхГ":"440x130x720 мм [3U]","Вес нетто":"~40 кг"},b_Интерфейсы:{"Дисплей":"7'' сенсорный","Порты":"RS-232, USB, Modbus"},b_Среда:{"Температура":"0-40C","Уровень шума":"~57 дБ","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"pm-rack-60",series:"PM RACK",cat:"three-phase",name:"PM RACK 60",pwr:60,kw:60,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"60 кВА / 60 кВт",Фазность:"3/3",PF:"1","Паралл.":"До 8 ИБП","Формат":"Rack/Tower 4U"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3%"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Количество":"30-50 шт","Зарядный ток":"1-10 А","Ном. напряжение":"480 В"},b_Физические:{"Габариты ШхВхГ":"440x172x720 мм [4U]","Вес нетто":"~55 кг"},b_Интерфейсы:{"Дисплей":"7'' сенсорный","Порты":"RS-232, USB, Modbus"},b_Среда:{"Температура":"0-40C","Уровень шума":"~62 дБ","Гарантия":"3 года (до 5 лет)"}})},
+  // PM TR
+  {id:"pm10tr",series:"PM TR",cat:"three-phase",name:"PM10 TR",pwr:10,kw:10,ph:"Мультифазный",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"10 кВА / 10 кВт",Фазность:"3:3 (ст.)/ 3:1,1:1 (опц.)",PF:"1","Паралл.":"До 8 ИБП","Встр. АВ":"5 шт (осн,вых,байпас,мех.байпас,АКБ)","Расп. АВ":"Сзади","Подключение":"Два ввода","Защита от обр. тока":"В наличии"},b_Вход:{"Ном. напряжение":"3x380/400/415 В (1ф - опция)","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В (1ф - опция)","Стабилизация":"+-1%","Частота (сеть)":"46-54 / 56-64 Гц","Частота (бат.)":"50/60+-0,1 Гц","Крест-фактор":"3:1","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин, 150% 1 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт","Зарядный ток":"1-5 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"281x727x822 мм","Вес нетто":"42 кг","Степень защиты":"IP20"},b_Интерфейсы:{"Дисплей":"7'' сенсорный, русский язык","Порты":"RS-232, USB, Modbus (RS485)","Сухие контакты":"4 вх. + 4 вых.","EMBS":"Разъем байпаса","Опционально":"SNMP, паралл. комплект, датчик термокомп."},b_Среда:{"Температура":"0-40C","Влажность":"0-95% без конденсата","Уровень шума":"49 дБ","Высота":"До 1500 м","Сертификация":"ЕАЭС ТР ТС, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"pm15tr",series:"PM TR",cat:"three-phase",name:"PM15 TR",pwr:15,kw:15,ph:"Мультифазный",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"15 кВА / 15 кВт",Фазность:"Мультифазный",PF:"1","Паралл.":"До 8 ИБП","Встр. АВ":"5 шт"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3%","Коэфф. мощности":">=0,99"},b_Выход:{"Стабилизация":"+-1%","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин, 150% 1 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Количество":"30-50 шт","Зарядный ток":"1-5 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый"},b_Физические:{"Габариты ШхВхГ":"281x727x822 мм","Вес нетто":"~45 кг"},b_Интерфейсы:{"Дисплей":"7'' сенсорный","Порты":"RS-232, USB, Modbus","Сухие контакты":"4 вх. + 4 вых."},b_Среда:{"Температура":"0-40C","Уровень шума":"50 дБ","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"pm20tr",series:"PM TR",cat:"three-phase",name:"PM20 TR",pwr:20,kw:20,ph:"Мультифазный",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"20 кВА / 20 кВт",Фазность:"Мультифазный",PF:"1","Паралл.":"До 8 ИБП","Встр. АВ":"5 шт"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3%"},b_Выход:{"Стабилизация":"+-1%","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин, 150% 1 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Количество":"30-50 шт","Зарядный ток":"1-5 А","Ном. напряжение":"480 В"},b_Физические:{"Габариты ШхВхГ":"281x727x822 мм","Вес нетто":"~48 кг"},b_Интерфейсы:{"Дисплей":"7'' сенсорный","Порты":"RS-232, USB, Modbus"},b_Среда:{"Температура":"0-40C","Уровень шума":"52 дБ","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"pm30tr",series:"PM TR",cat:"three-phase",name:"PM30 TR",pwr:30,kw:30,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"30 кВА / 30 кВт",Фазность:"3/3",PF:"1","Паралл.":"До 8 ИБП","Встр. АВ":"5 шт"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3%"},b_Выход:{"Стабилизация":"+-1%","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин, 150% 1 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Количество":"30-50 шт","Зарядный ток":"1-8 А","Ном. напряжение":"480 В"},b_Физические:{"Габариты ШхВхГ":"~300x900x850 мм","Вес нетто":"~55 кг"},b_Интерфейсы:{"Дисплей":"7'' сенсорный","Порты":"RS-232, USB, Modbus"},b_Среда:{"Температура":"0-40C","Уровень шума":"54 дБ","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"pm30sbtr",series:"PM TR",cat:"three-phase",name:"PM30SB TR",pwr:30,kw:30,ph:"3/3",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"30 кВА / 30 кВт",Фазность:"3/3",PF:"1","Паралл.":"До 8 ИБП","АКБ":"Внутренние, L10 (10 лет)"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"12V / 9Ah (внутренние)","Срок службы":"10 лет","Зарядный ток":"1-8 А"},b_Физические:{"Вес нетто":"~250 кг"},b_Среда:{"Температура":"0-40C","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"pm40tr",series:"PM TR",cat:"three-phase",name:"PM40 TR",pwr:40,kw:40,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"40 кВА / 40 кВт",Фазность:"3/3",PF:"1","Паралл.":"До 8 ИБП","Встр. АВ":"5 шт"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3%"},b_Выход:{"Стабилизация":"+-1%","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Количество":"30-50 шт","Зарядный ток":"1-8 А","Ном. напряжение":"480 В"},b_Физические:{"Вес нетто":"~60 кг"},b_Интерфейсы:{"Дисплей":"7'' сенсорный","Порты":"RS-232, USB, Modbus"},b_Среда:{"Уровень шума":"55 дБ","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"pm40sbtr",series:"PM TR",cat:"three-phase",name:"PM40SB TR",pwr:40,kw:40,ph:"3/3",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"40 кВА / 40 кВт",Фазность:"3/3",PF:"1","АКБ":"Внутренние, L10 (10 лет)"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"12V / 9Ah (внутренние)","Срок службы":"10 лет"},b_Физические:{"Вес нетто":"~280 кг"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"pm60tr",series:"PM TR",cat:"three-phase",name:"PM60 TR",pwr:60,kw:60,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"60 кВА / 60 кВт",Фазность:"3/3",PF:"1","Паралл.":"До 8 ИБП"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","THDi":"<3%"},b_Выход:{"Стабилизация":"+-1%","Перегрузка":"110% 60 мин, 125% 10 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Количество":"30-50 шт","Зарядный ток":"1-10 А"},b_Физические:{"Вес нетто":"~80 кг"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  // TM
+  {id:"tm80",series:"TM",cat:"three-phase",name:"TM80 V2",pwr:80,kw:80,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"80 кВА / 80 кВт",Фазность:"3-фазный вх/вых",PF:"1","Паралл.":"До 8 ИБП (общ. батарея)","Синхр. выхода":"Да","Встр. АВ":"4 шт","Мех. байпас":"Встроен","Стат. байпас":"В наличии","Подключение":"Два ввода","Режим преобр. частоты":"50/60 Гц","Защита от обр. тока":"В наличии","Силовые модули":"Горячая замена, фильтр от пыли"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<=3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 / 56-64 Гц","Частота (бат.)":"50/60+-0,1% Гц","Крест-фактор":"3:1","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин, 150% 1 мин, >150% байпас"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт","Зарядный ток":"1-15 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"380x1015x899 мм","Вес нетто":"138 кг","Степень защиты":"IP20","Необх. расстояние":"сверху 500 мм, сзади 500 мм, спереди 800 мм"},b_Интерфейсы:{"Дисплей":"7'' сенсорный, русский язык","Порты":"RS-232, USB, Modbus (RS485)","Сухие контакты":"6 вх. + 6 вых.","Датчик термокомп.":"Разъем","Опционально":"SNMP, EPO"},b_Среда:{"Температура":"0-40C","Влажность":"0-95% без конденсата","Уровень шума":"61 дБ","Высота":"До 1500 м","Сертификация":"ЕАЭС ТР ТС, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"tm100",series:"TM",cat:"three-phase",name:"TM100 V2",pwr:100,kw:100,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"100 кВА / 100 кВт",Фазность:"3/3",PF:"1","Паралл.":"До 8 ИБП","Силовые модули":"Горячая замена"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<=3%","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин, 150% 1 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Количество":"30-50 шт","Зарядный ток":"1-20 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"~400x1100x900 мм","Вес нетто":"~155 кг","Степень защиты":"IP20"},b_Интерфейсы:{"Дисплей":"7'' сенсорный","Порты":"RS-232, USB, Modbus","Сухие контакты":"6 вх. + 6 вых."},b_Среда:{"Температура":"0-40C","Уровень шума":"62 дБ","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"tm120",series:"TM",cat:"three-phase",name:"TM120 V2",pwr:120,kw:120,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"120 кВА / 120 кВт",Фазность:"3/3",PF:"1","Паралл.":"До 8 ИБП"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон частот":"40-70 Гц","THDi":"<=3%"},b_Выход:{"Стабилизация":"+-1%","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Количество":"30-50 шт","Зарядный ток":"1-20 А"},b_Физические:{"Вес нетто":"~170 кг"},b_Среда:{"Уровень шума":"63 дБ","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"tm160",series:"TM",cat:"three-phase",name:"TM160 V2",pwr:160,kw:160,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"160 кВА / 160 кВт",Фазность:"3/3",PF:"1","Паралл.":"До 8 ИБП"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон частот":"40-70 Гц"},b_Выход:{"Стабилизация":"+-1%","Перегрузка":"110% 60 мин, 125% 10 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Зарядный ток":"1-25 А"},b_Физические:{"Вес нетто":"~200 кг"},b_Среда:{"Уровень шума":"64 дБ","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"tm180",series:"TM",cat:"three-phase",name:"TM180 V2",pwr:180,kw:180,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"180 кВА / 180 кВт",Фазность:"3/3",PF:"1"},b_КПД:{"От сети":"96,5%"},b_Физические:{"Вес нетто":"~220 кг"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"tm200",series:"TM",cat:"three-phase",name:"TM200 V2",pwr:200,kw:200,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"200 кВА / 200 кВт",Фазность:"3/3",PF:"1"},b_КПД:{"От сети":"96,5%"},b_Физические:{"Вес нетто":"~250 кг"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  // TM ISO
+  {id:"tm-iso-60",series:"TM ISO",cat:"three-phase",name:"TM ISO 60",pwr:60,kw:60,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"60 кВА / 60 кВт",Фазность:"3/3",PF:"1","Паралл.":"До 4 ИБП","Особенность":"Встроенный изолирующий трансформатор","Модули":"Горячая замена, передний доступ"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон частот":"40-70 Гц","THDi":"<=3%"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Количество":"30-50 шт","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый"},b_Физические:{"Вес нетто":"~160 кг"},b_Интерфейсы:{"Дисплей":"7'' сенсорный","Порты":"RS-232, USB, Modbus"},b_Среда:{"Температура":"0-40C","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"tm-iso-100",series:"TM ISO",cat:"three-phase",name:"TM ISO 100",pwr:100,kw:100,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"100 кВА / 100 кВт",Фазность:"3/3",PF:"1","Особенность":"Встроенный изолирующий трансформатор"},b_КПД:{"От сети":"96,5%"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"tm-iso-120",series:"TM ISO",cat:"three-phase",name:"TM ISO 120",pwr:120,kw:120,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"120 кВА / 120 кВт",Фазность:"3/3",PF:"1","Особенность":"Встроенный изолирующий трансформатор"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"tm-iso-180",series:"TM ISO",cat:"three-phase",name:"TM ISO 180",pwr:180,kw:180,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"180 кВА / 180 кВт"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"tm-iso-200",series:"TM ISO",cat:"three-phase",name:"TM ISO 200",pwr:200,kw:200,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"200 кВА / 200 кВт"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  // SPM Plus
+  {id:"spm-plus-20",series:"SPM Plus",cat:"three-phase",name:"SPM Plus 20",pwr:20,kw:20,ph:"Мультифазный",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"20 кВА / 20 кВт",Фазность:"3:3 (ст.)/ 3:1,1:1 (опц.)",PF:"1","Тип":"Модульный","Силовой модуль":"PMP10 (10 кВт, 2U)","Макс. модулей":"2 шт","Паралл.":"До 8 ИБП","Резервирование":"N+X","Шкаф":"11U"},b_Вход:{"Ном. напряжение":"3x380/400/415 В (1ф - опция)","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<=3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Байпас:{"Диапазон напряжения":"Верх: +10/+15/+20/+25%, Низ: -10/-20/-30/-45%","Частота":"50/60 Гц +-10%"},b_Выход:{"Выходное напряжение":"3x380/400/415 В (1ф - опция)","Стабилизация":"+-1%","Частота (сеть)":"46-54 / 56-64 Гц","Частота (бат.)":"50/60+-0,1 Гц","Крест-фактор":"3:1","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин, 150% 1 мин, >150% байпас"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Зарядный ток":"1-5 А на модуль","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии"},b_Физические:{"Габариты ШхВхГ":"485x490x780 мм [11U]","Вес кабинета":"43 кг","Вес модуля":"15 кг"},b_Интерфейсы:{"Дисплей":"7'' сенсорный, русский язык","Порты":"USB, Modbus (RS485)","Опционально":"SNMP, релейная карта, паралл. комплект"},b_Среда:{"Температура":"0-40C","Влажность":"0-95% без конденсата","Уровень шума":"55 дБ","Высота":"До 1500 м","Сертификация":"ЕАЭС ТР ТС, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-plus-40",series:"SPM Plus",cat:"three-phase",name:"SPM Plus 40",pwr:40,kw:40,ph:"Мультифазный",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"40 кВА / 40 кВт",Фазность:"Мультифазный",PF:"1","Тип":"Модульный","Модуль":"10 кВт, 2U","Макс. модулей":"4 шт","Шкаф":"11U"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","THDi":"<=3%"},b_Выход:{"Стабилизация":"+-1%","THD":"<=1% (лин.); <=3% (нелин.)","Перегрузка":"110% 60 мин, 125% 10 мин"},b_КПД:{"От сети":"96,5%"},b_Батареи:{"Тип":"Внешние","Зарядный ток":"1-5 А на модуль","Ном. напряжение":"480 В"},b_Физические:{"Габариты ШхВхГ":"485x490x780 мм [11U]","Вес кабинета":"~48 кг"},b_Интерфейсы:{"Дисплей":"7'' сенсорный","Порты":"USB, Modbus"},b_Среда:{"Уровень шума":"57 дБ","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-plus-60",series:"SPM Plus",cat:"three-phase",name:"SPM Plus 60",pwr:60,kw:60,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"60 кВА / 60 кВт",Фазность:"3/3",PF:"1","Тип":"Модульный","Модуль":"30 кВт, 2U","Макс. модулей":"2 шт","Шкаф":"15U"},b_КПД:{"От сети":"96,5%"},b_Физические:{"Вес кабинета":"~55 кг"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-plus-80",series:"SPM Plus",cat:"three-phase",name:"SPM Plus 80",pwr:80,kw:80,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"80 кВА / 80 кВт",Фазность:"3/3",PF:"1","Тип":"Модульный","Модуль":"20 кВт, 2U","Макс. модулей":"4 шт","Шкаф":"15U"},b_КПД:{"От сети":"96,5%"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-plus-120",series:"SPM Plus",cat:"three-phase",name:"SPM Plus 120",pwr:120,kw:120,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"120 кВА / 120 кВт",Фазность:"3/3",PF:"1","Тип":"Модульный","Модуль":"30 кВт, 2U","Макс. модулей":"4 шт","Шкаф":"15U"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  // SPM
+  {id:"spm40",series:"SPM",cat:"three-phase",name:"SPM40",pwr:40,kw:40,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"40 кВА / 40 кВт",Фазность:"3/3",PF:"1","Тип":"Модульный (20/30 кВт)","Шкаф":"30U / 42U","N+X":"Да"},b_КПД:{"От сети":"96%"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm60",series:"SPM",cat:"three-phase",name:"SPM60",pwr:60,kw:60,ph:"3/3",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"60 кВА / 60 кВт",Фазность:"3/3",PF:"1","Тип":"Модульный","АКБ":"Внутренние"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm80",series:"SPM",cat:"three-phase",name:"SPM80",pwr:80,kw:80,ph:"3/3",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"80 кВА / 80 кВт","Тип":"Модульный","АКБ":"Внутренние"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm120",series:"SPM",cat:"three-phase",name:"SPM120",pwr:120,kw:120,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"120 кВА / 120 кВт","Тип":"Модульный"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm300",series:"SPM",cat:"three-phase",name:"SPM300",pwr:300,kw:300,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"300 кВА / 300 кВт","Тип":"Модульный","Шкаф":"42U"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  // MPM
+  {id:"mpm120",series:"MPM",cat:"three-phase",name:"MPM120",pwr:120,kw:120,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"120 кВА / 120 кВт",Фазность:"3/3",PF:"1","Тип":"Модульный, N+1/N+X","Горячая замена":"Да"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"mpm180",series:"MPM",cat:"three-phase",name:"MPM180",pwr:180,kw:180,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"180 кВА / 180 кВт","Тип":"Модульный"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"mpm300",series:"MPM",cat:"three-phase",name:"MPM300",pwr:300,kw:300,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"300 кВА / 300 кВт","Тип":"Модульный"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"mpm420",series:"MPM",cat:"three-phase",name:"MPM420",pwr:420,kw:420,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"420 кВА / 420 кВт"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"mpm480",series:"MPM",cat:"three-phase",name:"MPM480",pwr:480,kw:480,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"480 кВА / 480 кВт"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"mpm600",series:"MPM",cat:"three-phase",name:"MPM600",pwr:600,kw:600,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"600 кВА / 600 кВт"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  // MPM Plus
+  {id:"mpm-plus-200",series:"MPM Plus",cat:"three-phase",name:"MPM Plus 200",pwr:200,kw:200,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"200 кВА / 200 кВт",Фазность:"3/3",PF:"1","Тип":"Модульный","Модуль":"50 кВт, 3U","N+X":"Да","Горячая замена":"Да"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"mpm-plus-600",series:"MPM Plus",cat:"three-phase",name:"MPM Plus 600",pwr:600,kw:600,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"600 кВА / 600 кВт","Тип":"Модульный","Модуль":"100 кВт, 3U"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"mpm-plus-1200",series:"MPM Plus",cat:"three-phase",name:"MPM Plus 1200",pwr:1200,kw:1200,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"1200 кВА / 1200 кВт","Тип":"Модульный","Модуль":"100 кВт, 3U"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  // iDS
+  {id:"ids-10-31",series:"iDS",cat:"three-phase",name:"iDS 10 (3:1)",pwr:10,kw:8,ph:"3/1",pf:0.8,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"10 кВА / 8 кВт",Фазность:"3/1",PF:"0,8","Особенность":"Встроенный изолирующий трансформатор"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"ids-10-33",series:"iDS",cat:"three-phase",name:"iDS 10 (3:3)",pwr:10,kw:9,ph:"3/3",pf:0.9,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"10 кВА / 9 кВт",Фазность:"3/3",PF:"0,9","Особенность":"Встроенный изолирующий трансформатор"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"ids-20-33",series:"iDS",cat:"three-phase",name:"iDS 20 (3:3)",pwr:20,kw:18,ph:"3/3",pf:0.9,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"20 кВА / 18 кВт",PF:"0,9"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"ids-30-33",series:"iDS",cat:"three-phase",name:"iDS 30 (3:3)",pwr:30,kw:27,ph:"3/3",pf:0.9,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"30 кВА / 27 кВт",PF:"0,9"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"ids-40-33",series:"iDS",cat:"three-phase",name:"iDS 40 (3:3)",pwr:40,kw:36,ph:"3/3",pf:0.9,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"40 кВА / 36 кВт",PF:"0,9"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"ids-60-33",series:"iDS",cat:"three-phase",name:"iDS 60 (3:3)",pwr:60,kw:54,ph:"3/3",pf:0.9,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"60 кВА / 54 кВт",PF:"0,9"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"ids-80-33",series:"iDS",cat:"three-phase",name:"iDS 80 (3:3)",pwr:80,kw:72,ph:"3/3",pf:0.9,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"80 кВА / 72 кВт",PF:"0,9"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"ids-100-33",series:"iDS",cat:"three-phase",name:"iDS 100 (3:3)",pwr:100,kw:90,ph:"3/3",pf:0.9,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"100 кВА / 90 кВт",PF:"0,9"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"ids-120-33",series:"iDS",cat:"three-phase",name:"iDS 120 (3:3)",pwr:120,kw:108,ph:"3/3",pf:0.9,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"120 кВА / 108 кВт",PF:"0,9"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"ids-160-33",series:"iDS",cat:"three-phase",name:"iDS 160 (3:3)",pwr:160,kw:144,ph:"3/3",pf:0.9,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"160 кВА / 144 кВт"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"ids-200-33",series:"iDS",cat:"three-phase",name:"iDS 200 (3:3)",pwr:200,kw:180,ph:"3/3",pf:0.9,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"200 кВА / 180 кВт"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  // SINGLE-PHASE: SM RT
+  {id:"smrt-1",series:"SM RT",cat:"single-phase",name:"SM RT 1",pwr:1,kw:1,ph:"1/1",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"1 кВА / 1 кВт",Фазность:"1/1",PF:"1","Тип":"Online, двойное преобразование","АКБ":"Внутренние, 5 лет","ЭКО":"Да","Горячая замена АКБ":"Да","Генератор":"Совместим","Программируемые розетки":"Да"},b_Вход:{"Ном. напряжение":"1x220/230/240 В","Диапазон напряжений":"110-300 В","Частота":"50/60 Гц"},b_Выход:{"Выходное напряжение":"1x220/230/240 В","Стабилизация":"+-1%","Форма сигнала":"Чистая синусоида"},b_КПД:{"От сети":"~93-94%"},b_Интерфейсы:{"Порты":"USB, RS-232","Опционально":"SNMP"},b_Среда:{"Температура":"0-40C","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"smrt-2",series:"SM RT",cat:"single-phase",name:"SM RT 2",pwr:2,kw:2,ph:"1/1",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"2 кВА / 2 кВт",Фазность:"1/1",PF:"1","Тип":"Online","АКБ":"Внутренние, 5 лет"},b_Вход:{"Ном. напряжение":"1x220/230/240 В"},b_Выход:{"Выходное напряжение":"1x220/230/240 В","Стабилизация":"+-1%"},b_КПД:{"От сети":"~94%"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"smrt-3",series:"SM RT",cat:"single-phase",name:"SM RT 3",pwr:3,kw:3,ph:"1/1",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"3 кВА / 3 кВт",Фазность:"1/1",PF:"1","Тип":"Online","АКБ":"Внутренние, 5 лет"},b_КПД:{"От сети":"~94%"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"smrt-1-wo",series:"SM RT",cat:"single-phase",name:"SM RT 1 /wo",pwr:1,kw:1,ph:"1/1",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"1 кВА / 1 кВт","Тип":"Online","АКБ":"Внешние (без батарей)"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"smrt-2-wo",series:"SM RT",cat:"single-phase",name:"SM RT 2 /wo",pwr:2,kw:2,ph:"1/1",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"2 кВА / 2 кВт","АКБ":"Внешние (без батарей)"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"smrt-3-wo",series:"SM RT",cat:"single-phase",name:"SM RT 3 /wo",pwr:3,kw:3,ph:"1/1",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"3 кВА / 3 кВт","АКБ":"Внешние (без батарей)"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  // SMX RT
+  {id:"smxrt-1",series:"SMX RT",cat:"single-phase",name:"SMX RT 1",pwr:1,kw:1,ph:"1/1",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"1 кВА / 1 кВт","Тип":"Online","АКБ":"Внутренние, 5 лет","ЭКО":"Да","Горячая замена АКБ":"Да","3-ст. заряд":"Да"},b_Вход:{"Ном. напряжение":"1x220/230/240 В"},b_Выход:{"Стабилизация":"+-1%"},b_КПД:{"От сети":"~94%"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"smxrt-2",series:"SMX RT",cat:"single-phase",name:"SMX RT 2",pwr:2,kw:2,ph:"1/1",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"2 кВА / 2 кВт","Тип":"Online","АКБ":"Внутренние, 5 лет"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"smxrt-3",series:"SMX RT",cat:"single-phase",name:"SMX RT 3",pwr:3,kw:3,ph:"1/1",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"3 кВА / 3 кВт","Тип":"Online","АКБ":"Внутренние, 5 лет"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  // SM RM
+  {id:"smrm-1",series:"SM RM",cat:"single-phase",name:"SM RM 1",pwr:1,kw:0.9,ph:"1/1",pf:0.9,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"1 кВА / 0,9 кВт",PF:"0,9","Тип":"Online, Rack","АКБ":"Внутренние","Горячая замена АКБ":"Да","ЭКО":"Да","Генератор":"Совместим"},b_Вход:{"Ном. напряжение":"1x220/230/240 В"},b_Выход:{"Выходное напряжение":"1x220/230/240 В","Стабилизация":"+-1%"},b_КПД:{"От сети":"~93%"},b_Интерфейсы:{"Порты":"USB, RS-232"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"smrm-2",series:"SM RM",cat:"single-phase",name:"SM RM 2",pwr:2,kw:1.8,ph:"1/1",pf:0.9,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"2 кВА / 1,8 кВт",PF:"0,9","Тип":"Online, Rack"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"smrm-3",series:"SM RM",cat:"single-phase",name:"SM RM 3",pwr:3,kw:2.7,ph:"1/1",pf:0.9,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"3 кВА / 2,7 кВт",PF:"0,9","Тип":"Online, Rack"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  // SM RT 6-10
+  {id:"smrt-6",series:"SM RT 6-10",cat:"single-phase",name:"SM RT 6",pwr:6,kw:6,ph:"1/1",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"6 кВА / 6 кВт",PF:"1","Тип":"Online","АКБ":"Внешние","Интерфейсы":"SNMP/USB/RS-232, EPO","Генератор":"Совместим"},b_Вход:{"Ном. напряжение":"1x220/230/240 В"},b_Выход:{"Выходное напряжение":"1x220/230/240 В","Стабилизация":"+-1%"},b_КПД:{"От сети":"~94%"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"smrt-6-sb",series:"SM RT 6-10",cat:"single-phase",name:"SM RT 6 (SB)",pwr:6,kw:6,ph:"1/1",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"6 кВА / 6 кВт",PF:"1","Тип":"Online","АКБ":"Внутренние"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"smrt-10",series:"SM RT 6-10",cat:"single-phase",name:"SM RT 10",pwr:10,kw:10,ph:"1/1",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{Мощность:"10 кВА / 10 кВт",PF:"1","Тип":"Online","АКБ":"Внешние","Интерфейсы":"SNMP/USB/RS-232, EPO"},b_Вход:{"Ном. напряжение":"1x220/230/240 В"},b_Выход:{"Выходное напряжение":"1x220/230/240 В","Стабилизация":"+-1%"},b_КПД:{"От сети":"~94%"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"smrt-10-sb",series:"SM RT 6-10",cat:"single-phase",name:"SM RT 10 (SB)",pwr:10,kw:10,ph:"1/1",pf:1,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"10 кВА / 10 кВт","АКБ":"Внутренние"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  // OLIO LiFePO4
+  {id:"olio-1",series:"OLIO",cat:"single-phase",name:"OLIO 1000",pwr:1,kw:1,ph:"1/1",pf:1,bat:"external",batLbl:"Внешние (LiFePO4)",specs:M({b_Общие:{Мощность:"1 кВА / 1 кВт",PF:"1","Тип":"Online, литий-ионный (LiFePO4)","АКБ":"Внешние LiFePO4","BMS":"Да","Формат":"Стойка/башня","Модульная":"Да"},b_Вход:{"Ном. напряжение":"1x220/230/240 В"},b_Выход:{"Выходное напряжение":"1x220/230/240 В","Стабилизация":"+-1%"},b_КПД:{"От сети":"~94%"},b_Физические:{"Особенность":"В 2 раза меньше места, в 3 раза дольше службы vs VRLA"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"olio-2",series:"OLIO",cat:"single-phase",name:"OLIO 2000",pwr:2,kw:2,ph:"1/1",pf:1,bat:"external",batLbl:"Внешние (LiFePO4)",specs:M({b_Общие:{Мощность:"2 кВА / 2 кВт","Тип":"Online, LiFePO4","BMS":"Да"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  {id:"olio-3",series:"OLIO",cat:"single-phase",name:"OLIO 3000",pwr:3,kw:3,ph:"1/1",pf:1,bat:"external",batLbl:"Внешние (LiFePO4)",specs:M({b_Общие:{Мощность:"3 кВА / 3 кВт","Тип":"Online, LiFePO4","BMS":"Да"},b_Среда:{"Гарантия":"3 года (до 5 лет)"}})},
+  // 3S
+  {id:"3s-550",series:"3S",cat:"single-phase",name:"3S 550",pwr:0.55,kw:0.3,ph:"1/1",pf:0.55,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"0,55 кВА / 0,3 кВт","Тип":"Линейно-интерактивный","Защита":"Низкое U, перегрузка, КЗ, перегрев","Автоперезапуск":"Да","Интеллект. заряд":"Да"},b_Вход:{"Ном. напряжение":"1x220 В","Диапазон напряжений":"Широкий"},b_Выход:{"Выходное напряжение":"1x220 В","Форма":"Аппроксимированная синусоида"},b_Интерфейсы:{"Дисплей":"LCD","Порты":"USB, RS-232"},b_Среда:{"Гарантия":"3 года"}})},
+  {id:"3s-650",series:"3S",cat:"single-phase",name:"3S 650",pwr:0.65,kw:0.36,ph:"1/1",pf:0.55,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"0,65 кВА / 0,36 кВт","Тип":"Линейно-интерактивный","Защита":"Низкое U, перегрузка, КЗ, перегрев"},b_Интерфейсы:{"Дисплей":"LCD","Порты":"USB, RS-232"},b_Среда:{"Гарантия":"3 года"}})},
+     {id:"3s-850",series:"3S",cat:"single-phase",name:"3S 850",pwr:0.85,kw:0.48,ph:"1/1",pf:0.55,bat:"internal",batLbl:"Внутренние",specs:M({b_Общие:{Мощность:"0,85 кВА / 0,48 кВт","Тип":"Линейно-интерактивный","Защита":"Низкое U, перегрузка, КЗ, перегрев"},b_Интерфейсы:{"Дисплей":"LCD","Порты":"USB, RS-232"},b_Среда:{"Гарантия":"3 года"}})},
+  // SPM-MR и SPM-M — модульные ИБП (N+X, PF=1)
+  {id:"spm-mr40",series:"SPM-MR",cat:"three-phase",name:"SPM-MR40",pwr:40,kw:40,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"40 кВА / 40 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"2 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода","Формат":"Rack 8U"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"482x800x353 мм (8U)","Вес нетто":"56 кг","Степень защиты":"IP20","Уровень шума":"<60 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"4 вх. + 4 вых. реле","Опционально":"SNMP, датчик окр. среды, байпасный модуль"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-mr50",series:"SPM-MR",cat:"three-phase",name:"SPM-MR50",pwr:50,kw:50,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"50 кВА / 50 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"2 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода","Формат":"Rack 8U"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"482x800x353 мм (8U)","Вес нетто":"56 кг","Степень защиты":"IP20","Уровень шума":"<60 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"4 вх. + 4 вых. реле","Опционально":"SNMP, датчик окр. среды, байпасный модуль"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-mr80",series:"SPM-MR",cat:"three-phase",name:"SPM-MR80",pwr:80,kw:80,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"80 кВА / 80 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"4 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода","Формат":"Rack 12U"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"482x800x531 мм (12U)","Вес нетто":"64 кг","Степень защиты":"IP20","Уровень шума":"<60 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"4 вх. + 4 вых. реле","Опционально":"SNMP, датчик окр. среды, байпасный модуль"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-mr100",series:"SPM-MR",cat:"three-phase",name:"SPM-MR100",pwr:100,kw:100,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"100 кВА / 100 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"4 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода","Формат":"Rack 12U"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"482x800x531 мм (12U)","Вес нетто":"64 кг","Степень защиты":"IP20","Уровень шума":"<60 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"4 вх. + 4 вых. реле","Опционально":"SNMP, датчик окр. среды, байпасный модуль"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-mr120",series:"SPM-MR",cat:"three-phase",name:"SPM-MR120",pwr:120,kw:120,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"120 кВА / 120 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"6 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода","Формат":"Rack 18U"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"482x900x796 мм (18U)","Вес нетто":"80 кг","Степень защиты":"IP20","Уровень шума":"<65 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"4 вх. + 4 вых. реле","Опционально":"SNMP, датчик окр. среды, байпасный модуль"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-mr150",series:"SPM-MR",cat:"three-phase",name:"SPM-MR150",pwr:150,kw:150,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"150 кВА / 150 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"6 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода","Формат":"Rack 18U"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"482x900x796 мм (18U)","Вес нетто":"80 кг","Степень защиты":"IP20","Уровень шума":"<65 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"4 вх. + 4 вых. реле","Опционально":"SNMP, датчик окр. среды, байпасный модуль"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-m80",series:"SPM-M",cat:"three-phase",name:"SPM-M80",pwr:80,kw:80,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"80 кВА / 80 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"4 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"600x850x1200 мм","Вес нетто":"145 кг","Степень защиты":"IP20","Уровень шума":"<65 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 6 вых. реле","Опционально":"SNMP, датчик окр. среды"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-m100",series:"SPM-M",cat:"three-phase",name:"SPM-M100",pwr:100,kw:100,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"100 кВА / 100 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"4 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"600x850x1200 мм","Вес нетто":"145 кг","Степень защиты":"IP20","Уровень шума":"<65 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 6 вых. реле","Опционально":"SNMP, датчик окр. среды"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-m140",series:"SPM-M",cat:"three-phase",name:"SPM-M140",pwr:140,kw:140,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"140 кВА / 140 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"7 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"600x850x1600 мм","Вес нетто":"210 кг","Степень защиты":"IP20","Уровень шума":"<65 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 6 вых. реле","Опционально":"SNMP, датчик окр. среды"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-m175",series:"SPM-M",cat:"three-phase",name:"SPM-M175",pwr:175,kw:175,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"175 кВА / 175 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"7 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"600x850x1600 мм","Вес нетто":"210 кг","Степень защиты":"IP20","Уровень шума":"<65 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 6 вых. реле","Опционально":"SNMP, датчик окр. среды"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-m240",series:"SPM-M",cat:"three-phase",name:"SPM-M240",pwr:240,kw:240,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"240 кВА / 240 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"12 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"600x1010x2000 мм","Вес нетто":"239 кг","Степень защиты":"IP20","Уровень шума":"<70 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 6 вых. реле","Опционально":"SNMP, датчик окр. среды"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-m300",series:"SPM-M",cat:"three-phase",name:"SPM-M300",pwr:300,kw:300,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"300 кВА / 300 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"12 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"600x1010x2000 мм","Вес нетто":"239 кг","Степень защиты":"IP20","Уровень шума":"<70 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 6 вых. реле","Опционально":"SNMP, датчик окр. среды"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-m200t",series:"SPM-M",cat:"three-phase",name:"SPM-M200",pwr:200,kw:200,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"200 кВА / 200 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"4+1 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"600x850x2000 мм","Вес нетто":"190 кг","Степень защиты":"IP20","Уровень шума":"<70 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 6 вых. реле","Опционально":"SNMP, датчик окр. среды"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-m300t",series:"SPM-M",cat:"three-phase",name:"SPM-M300",pwr:300,kw:300,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"300 кВА / 300 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"6+1 / 5+2 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"600x1100x2000 мм","Вес нетто":"286 кг","Степень защиты":"IP20","Уровень шума":"<70 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 6 вых. реле","Опционально":"SNMP, датчик окр. среды"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-m400",series:"SPM-M",cat:"three-phase",name:"SPM-M400",pwr:400,kw:400,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"400 кВА / 400 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"8+4 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"1000x1100x2000 мм","Вес нетто":"372 кг","Степень защиты":"IP20","Уровень шума":"<72 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 6 вых. реле","Опционально":"SNMP, датчик окр. среды"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-m500",series:"SPM-M",cat:"three-phase",name:"SPM-M500",pwr:500,kw:500,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"500 кВА / 500 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"10+2 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"1000x1100x2000 мм","Вес нетто":"372 кг","Степень защиты":"IP20","Уровень шума":"<72 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 6 вых. реле","Опционально":"SNMP, датчик окр. среды"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-m600",series:"SPM-M",cat:"three-phase",name:"SPM-M600",pwr:600,kw:600,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"600 кВА / 600 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"12 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"1800x850x2000 мм","Вес нетто":"610 кг","Степень защиты":"IP20","Уровень шума":"<75 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 6 вых. реле","Опционально":"SNMP, датчик окр. среды"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-m800",series:"SPM-M",cat:"three-phase",name:"SPM-M800",pwr:800,kw:800,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"800 кВА / 800 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"14 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"2000x1100x2000 мм","Вес нетто":"745 кг","Степень защиты":"IP20","Уровень шума":"<75 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 6 вых. реле","Опционально":"SNMP, датчик окр. среды"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+  {id:"spm-m1200",series:"SPM-M",cat:"three-phase",name:"SPM-M1200",pwr:1200,kw:1200,ph:"3/3",pf:1,bat:"external",batLbl:"Внешние",specs:M({b_Общие:{"Мощность":"1200 кВА / 1200 кВт","Фазность":"3-фазный вх/вых (3:3)","PF":"1","Паралл.":"До 8 ИБП","Силовые модули":"24 шт (горячая замена)","Резерв":"N+X","Подключение":"Два ввода"},b_Вход:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжений":"208-478 В","Диапазон частот":"40-70 Гц","THDi":"<3% (100% лин.)","Коэфф. мощности":">=0,99"},b_Выход:{"Выходное напряжение":"3x380/400/415 В","Стабилизация":"+-1%","Частота (сеть)":"46-54 Гц или 56-64 Гц","Частота (бат.)":"50/60 Гц +-0,1 Гц","Крест-фактор":"3:1","THD":"<=2% (лин.); <=5% (нелин.)","Перегрузка":"110% 60 мин, 120% 10 мин, 150% 1 мин"},b_Байпас:{"Ном. напряжение":"3x380/400/415 В","Диапазон напряжения":"305-457 В","Частота":"46-54 Гц или 56-64 Гц"},b_КПД:{"От сети":"96,5%","ЭКО":"99%","От батареи":"96,5%"},b_Батареи:{"Тип":"Зависит от задачи (внешние)","Количество":"30-50 шт (по задаче)","Зарядный ток":"1-16 А","Ном. напряжение":"480 В","Метод заряда":"Трехступенчатый","Термокомпенсация":"В наличии","Холодный старт":"В наличии"},b_Физические:{"Габариты ШхВхГ":"2000x1100x2000 мм","Вес нетто":"745 кг","Степень защиты":"IP20","Уровень шума":"<75 дБ"},b_Интерфейсы:{"Дисплей":"Сенсорный цветной ЖК 7\"","Порты":"RS-232, USB, Modbus (RS485x2)","Сухие контакты":"6 вх. + 6 вых. реле","Опционально":"SNMP, датчик окр. среды"},b_Среда:{"Температура":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м (100% нагр.)","Сертификация":"ЕАЭС ТР ТС, IEC 62040, ISO 9001","Гарантия":"3 года (до 5 лет)"}})},
+];
+
+function bat(overrides) {
+  const base = {g_Общие:{},g_Электрические:{},g_Батарейный_массив:{},g_Защита:{},g_Физические:{},g_Среда:{}};
+  for (const [grp,vals] of Object.entries(overrides)) { if (!base[grp]) base[grp] = {}; Object.assign(base[grp], vals); }
+  const d = {};
+  for (const [g,v] of Object.entries(base)) { if (Object.keys(v).length > 0) d[g] = v; }
+  return d;
+}
+
+function cabBat(id, series, name, en, pwr, protCur, dims, weight) {
+  return {
+    id, series, cat:"cabinet", name, en:parseFloat(en), pwr:parseFloat(pwr),
+    specs: bat({
+      g_Общие: {"Тип модуля":name,"Исполнение":series,"Энергоотдача":en+" кВт (10 мин)","Номинальное напряжение":"480 В"},
+      g_Электрические: {"Номинальная мощность (10 мин)":pwr+" кВт","Саморазряд":"<3% в месяц"},
+      g_Защита: {"Аппарат защиты":"АВ","Ток":protCur},
+      g_Батарейный_массив: {"Тип АКБ":"12V / 155 А·ч VRLA (AGM)","Номинальное напряжение":"480 В","Срок службы":"12 лет"},
+      g_Физические: {"Габариты ШхВхГ":dims,"Вес нетто":weight,"Цвет":"RAL 9003","Степень защиты IP":"IP20"},
+      g_Среда: {"Температура эксплуатации":"0-40C","Влажность":"<95% без конденсата","Высота":"0-1500 м","Гарантия":"3 года"}
+    })
+  };
+}
+
+let BAT = [
+  // DBCM
+  cabBat("dbcm130","DBCM","DBCM130-155","13.2","13.2","63 А","800x860x1200 мм","327 кг"),
+  cabBat("dbcm115","DBCM","DBCM115-155","11.5","11.5","63 А","800x860x1200 мм","~310 кг"),
+  cabBat("dbcm100","DBCM","DBCM100-155","10.0","10.0","63 А","800x860x1200 мм","~290 кг"),
+  cabBat("dbcm85","DBCM","DBCM85-155","8.5","8.5","50 А","800x860x1200 мм","~270 кг"),
+  cabBat("dbcm70","DBCM","DBCM70-155","7.0","7.0","50 А","800x860x1200 мм","~250 кг"),
+  cabBat("dbcm55","DBCM","DBCM55-155","5.5","5.5","40 А","800x860x1200 мм","~230 кг"),
+  cabBat("dbcm40","DBCM","DBCM40-155","4.0","4.0","25 А","800x860x1200 мм","~210 кг"),
+  // DBCL
+  cabBat("dbcl100","DBCL","DBCL100-155","10.0","10.0","50 А","800x860x1200 мм","~280 кг"),
+  cabBat("dbcl90","DBCL","DBCL90-155","9.0","9.0","50 А","800x860x1200 мм","~260 кг"),
+  cabBat("dbcl80","DBCL","DBCL80-155","8.0","8.0","50 А","800x860x1200 мм","~250 кг"),
+  cabBat("dbcl70","DBCL","DBCL70-155","7.0","7.0","50 А","800x860x1200 мм","~240 кг"),
+  cabBat("dbcl60","DBCL","DBCL60-155","6.0","6.0","40 А","800x860x1200 мм","~230 кг"),
+  cabBat("dbcl50","DBCL","DBCL50-155","5.0","5.0","25 А","800x860x1200 мм","~220 кг"),
+  cabBat("dbcl40","DBCL","DBCL40-155","4.0","4.0","25 А","800x860x1200 мм","~210 кг"),
+  // DBC
+  cabBat("dbc500","DBC","DBC500-155","50.0","50.0","200 А","1000x1200x1900 мм","~900 кг"),
+  cabBat("dbc400","DBC","DBC400-155","40.0","40.0","160 А","1000x1200x1900 мм","~750 кг"),
+  cabBat("dbc350","DBC","DBC350-155","35.0","35.0","140 А","1000x1200x1900 мм","~680 кг"),
+  cabBat("dbc300","DBC","DBC300-155","30.0","30.0","125 А","1000x1200x1900 мм","~600 кг"),
+  cabBat("dbc250","DBC","DBC250-155","25.0","25.0","100 А","1000x1200x1900 мм","~530 кг"),
+  cabBat("dbc200","DBC","DBC200-155","20.0","20.0","80 А","1000x1200x1900 мм","~450 кг"),
+  cabBat("dbc150","DBC","DBC150-155","15.0","15.0","63 А","1000x1200x1900 мм","~400 кг"),
+  cabBat("dbc100","DBC","DBC100-155","10.0","10.0","50 А","1000x1200x1900 мм","~350 кг"),
+  // DBCVS TW 600V
+  cabBat("dbcvs125","DBCVS","DBCVS125-155TW","12.5","12.5","63 А","800x1100x1400 мм","~380 кг"),
+  cabBat("dbcvs100","DBCVS","DBCVS100-155TW","10.0","10.0","50 А","800x1100x1400 мм","~350 кг"),
+  cabBat("dbcvs75","DBCVS","DBCVS75-155TW","7.5","7.5","40 А","800x1100x1400 мм","~320 кг"),
+  cabBat("dbcvs50","DBCVS","DBCVS50-155TW","5.0","5.0","25 А","800x1100x1400 мм","~290 кг"),
+  // DBCSL
+  cabBat("dbcsl9x32","DBCSL","DBCSL 9x32","8.5","8.5","50 А","900x1200x1600 мм","~350 кг"),
+  cabBat("dbcsl6x32","DBCSL","DBCSL 6x32","5.6","5.6","40 А","900x1200x1600 мм","~280 кг"),
+  cabBat("dbcsl9x28","DBCSL","DBCSL 9x28","7.6","7.6","50 А","900x1200x1600 мм","~330 кг"),
+  cabBat("dbcsl6x28","DBCSL","DBCSL 6x28","5.0","5.0","25 А","900x1200x1600 мм","~260 кг"),
+  // DBCS
+  cabBat("dbcs140","DBCS","DBCS140-155","14.0","14.0","63 А","600x860x1400 мм","~340 кг"),
+  cabBat("dbcs120","DBCS","DBCS120-155","12.0","12.0","63 А","600x860x1400 мм","~310 кг"),
+  cabBat("dbcs100","DBCS","DBCS100-155","10.0","10.0","50 А","600x860x1400 мм","~280 кг"),
+  cabBat("dbcs80","DBCS","DBCS80-155","8.0","8.0","50 А","600x860x1400 мм","~260 кг"),
+  cabBat("dbcs60","DBCS","DBCS60-155","6.0","6.0","40 А","600x860x1400 мм","~240 кг"),
+  cabBat("dbcs40","DBCS","DBCS40-155","4.0","4.0","25 А","600x860x1400 мм","~220 кг"),
+  // DBCVS TW non-standard
+  {id:"dbcvs12-600",series:"DBCVS",cat:"cabinet",name:"DBCVS12-600",en:12,pwr:12,
+   specs:bat({g_Общие:{"Тип модуля":"DBCVS12-600","Исполнение":"DBCVS","Энергоотдача":"12 кВт (10 мин)","Номинальное напряжение":"600 В"},g_Электрические:{"Саморазряд":"<3% в месяц"},g_Защита:{"Аппарат защиты":"АВ","Ток":"63 А"},g_Батарейный_массив:{"Тип АКБ":"12V / 155 А·ч VRLA","Номинальное напряжение":"600 В","Срок службы":"12 лет"},g_Физические:{"Габариты ШхВхГ":"600x860x1400 мм","Вес нетто":"~310 кг","Цвет":"RAL 9003","Степень защиты IP":"IP20"},g_Среда:{"Температура эксплуатации":"0-40C","Гарантия":"3 года"}})},
+  // LiFePO4 MPM
+  {id:"mpm50-bat",series:"MPM (LiFePO4)",cat:"lifepo4",name:"MPM50",en:5.12,pwr:5.12,
+   specs:bat({g_Общие:{"Тип модуля":"MPM50","Исполнение":"Напольный литиевый","Энергоотдача":"5,12 кВт·ч","Номинальное напряжение":"51,2 В"},g_Электрические:{"Саморазряд":"<3% в месяц"},g_Защита:{"Аппарат защиты":"BMS","Ток":"100 А"},g_Батарейный_массив:{"Тип АКБ":"LiFePO4","Номинальное напряжение":"51,2 В","Емкость":"100 А·ч","Срок службы":"12 лет"},g_Физические:{"Габариты ШхВхГ":"500x350x170 мм","Вес нетто":"52 кг","Цвет":"RAL 9003","Степень защиты IP":"IP20"},g_Среда:{"Температура эксплуатации":"0-40C","Гарантия":"3 года"}})},
+  {id:"mpm100-bat",series:"MPM (LiFePO4)",cat:"lifepo4",name:"MPM100",en:10.24,pwr:10.24,
+   specs:bat({g_Общие:{"Тип модуля":"MPM100","Исполнение":"Напольный литиевый","Энергоотдача":"10,24 кВт·ч","Номинальное напряжение":"51,2 В"},g_Электрические:{"Саморазряд":"<3% в месяц"},g_Защита:{"Аппарат защиты":"BMS","Ток":"200 А"},g_Батарейный_массив:{"Тип АКБ":"LiFePO4","Номинальное напряжение":"51,2 В","Емкость":"200 А·ч","Срок службы":"12 лет"},g_Физические:{"Габариты ШхВхГ":"~600x500x200 мм","Вес нетто":"~95 кг","Цвет":"RAL 9003","Степень защиты IP":"IP20"},g_Среда:{"Температура эксплуатации":"0-40C","Гарантия":"3 года"}})},
+  {id:"mpm150-bat",series:"MPM (LiFePO4)",cat:"lifepo4",name:"MPM150",en:15.36,pwr:15.36,
+   specs:bat({g_Общие:{"Тип модуля":"MPM150","Исполнение":"Напольный литиевый","Энергоотдача":"15,36 кВт·ч","Номинальное напряжение":"51,2 В"},g_Защита:{"Аппарат защиты":"BMS","Ток":"300 А"},g_Батарейный_массив:{"Тип АКБ":"LiFePO4","Номинальное напряжение":"51,2 В","Емкость":"300 А·ч","Срок службы":"12 лет"},g_Физические:{"Вес нетто":"~140 кг","Цвет":"RAL 9003","Степень защиты IP":"IP20"},g_Среда:{"Температура эксплуатации":"0-40C","Гарантия":"3 года"}})},
+  {id:"mpm200-bat",series:"MPM (LiFePO4)",cat:"lifepo4",name:"MPM200",en:20.48,pwr:20.48,
+   specs:bat({g_Общие:{"Тип модуля":"MPM200","Исполнение":"Напольный литиевый","Энергоотдача":"20,48 кВт·ч","Номинальное напряжение":"51,2 В"},g_Батарейный_массив:{"Тип АКБ":"LiFePO4","Номинальное напряжение":"51,2 В","Емкость":"400 А·ч","Срок службы":"12 лет"},g_Среда:{"Температура эксплуатации":"0-40C","Гарантия":"3 года"}})},
+  // RT modules
+  {id:"bmrt-1u",series:"BM RT",cat:"rt",name:"BM RT 1U",en:0.8,pwr:0.8,
+   specs:bat({g_Общие:{"Тип модуля":"BM RT 1U","Исполнение":"Модуль RT, 1U","Энергоотдача":"0,8 кВт·ч","Номинальное напряжение":"24 В"},g_Защита:{"Аппарат защиты":"Предохранитель","Ток":"30 А"},g_Батарейный_массив:{"Тип АКБ":"12V / 7,2 А·ч VRLA","Номинальное напряжение":"24 В","Срок службы":"5 лет"},g_Физические:{"Габариты ШхВхГ":"483x44x450 мм [1U]","Вес нетто":"~12 кг","Цвет":"RAL 9003"},g_Среда:{"Температура эксплуатации":"0-40C","Гарантия":"2 года"}})},
+  {id:"bmrt-2u",series:"BM RT",cat:"rt",name:"BM RT 2U",en:1.6,pwr:1.6,
+   specs:bat({g_Общие:{"Тип модуля":"BM RT 2U","Исполнение":"Модуль RT, 2U","Энергоотдача":"1,6 кВт·ч","Номинальное напряжение":"48 В"},g_Защита:{"Аппарат защиты":"Предохранитель","Ток":"40 А"},g_Батарейный_массив:{"Тип АКБ":"12V / 7,2 А·ч VRLA","Номинальное напряжение":"48 В","Срок службы":"5 лет"},g_Физические:{"Габариты ШхВхГ":"483x89x450 мм [2U]","Вес нетто":"~24 кг","Цвет":"RAL 9003"},g_Среда:{"Температура эксплуатации":"0-40C","Гарантия":"2 года"}})},
+  {id:"bmrt-3u",series:"BM RT",cat:"rt",name:"BM RT 3U",en:2.4,pwr:2.4,
+   specs:bat({g_Общие:{"Тип модуля":"BM RT 3U","Исполнение":"Модуль RT, 3U","Энергоотдача":"2,4 кВт·ч","Номинальное напряжение":"48 В"},g_Батарейный_массив:{"Тип АКБ":"12V / 9 А·ч VRLA","Номинальное напряжение":"48 В","Срок службы":"5 лет"},g_Физические:{"Габариты ШхВхГ":"483x133x450 мм [3U]","Вес нетто":"~36 кг","Цвет":"RAL 9003"},g_Среда:{"Температура эксплуатации":"0-40C","Гарантия":"2 года"}})},
+  // Rack modules
+  {id:"bmr-1u",series:"BM RACK",cat:"rack",name:"BM RACK 1U",en:0.9,pwr:0.9,
+   specs:bat({g_Общие:{"Тип модуля":"BM RACK 1U","Исполнение":"Стоечный, 1U","Энергоотдача":"0,9 кВт·ч","Номинальное напряжение":"24 В"},g_Защита:{"Аппарат защиты":"АВ","Ток":"30 А"},g_Батарейный_массив:{"Тип АКБ":"12V / 9 А·ч VRLA","Номинальное напряжение":"24 В","Срок службы":"5 лет"},g_Физические:{"Габариты ШхВхГ":"483x44x450 мм [1U]","Вес нетто":"~15 кг","Цвет":"RAL 9003"},g_Среда:{"Температура эксплуатации":"0-40C","Гарантия":"2 года"}})},
+  {id:"bmr-2u",series:"BM RACK",cat:"rack",name:"BM RACK 2U",en:1.8,pwr:1.8,
+   specs:bat({g_Общие:{"Тип модуля":"BM RACK 2U","Исполнение":"Стоечный, 2U","Энергоотдача":"1,8 кВт·ч","Номинальное напряжение":"48 В"},g_Батарейный_массив:{"Тип АКБ":"12V / 9 А·ч VRLA","Номинальное напряжение":"48 В","Срок службы":"5 лет"},g_Физические:{"Габариты ШхВхГ":"483x89x450 мм [2U]","Вес нетто":"~28 кг","Цвет":"RAL 9003"},g_Среда:{"Температура эксплуатации":"0-40C","Гарантия":"2 года"}})},
+  {id:"bmr-3u",series:"BM RACK",cat:"rack",name:"BM RACK 3U",en:2.6,pwr:2.6,
+   specs:bat({g_Общие:{"Тип модуля":"BM RACK 3U","Исполнение":"Стоечный, 3U","Энергоотдача":"2,6 кВт·ч","Номинальное напряжение":"48 В"},g_Батарейный_массив:{"Тип АКБ":"12V / 9 А·ч VRLA","Номинальное напряжение":"48 В","Срок службы":"5 лет"},g_Физические:{"Габариты ШхВхГ":"483x133x450 мм [3U]","Вес нетто":"~40 кг","Цвет":"RAL 9003"},g_Среда:{"Температура эксплуатации":"0-40C","Гарантия":"2 года"}})},
+  // Battery racks (OTBC)
+  {id:"otbc-10",series:"OTBC",cat:"rack",name:"OTBC-10",en:10,pwr:10,
+   specs:bat({g_Общие:{"Тип модуля":"OTBC-10","Исполнение":"Батарейный стеллаж","Энергоотдача":"10 кВ·ч","Номинальное напряжение":"480 В"},g_Батарейный_массив:{"Тип АКБ":"12V / 155 А·ч VRLA","Номинальное напряжение":"480 В","Срок службы":"12 лет"},g_Физические:{"Габариты ШхВхГ":"800x860x1200 мм","Вес нетто":"~240 кг","Цвет":"RAL 9003"},g_Среда:{"Температура эксплуатации":"0-40C","Гарантия":"3 года"}})},
+  {id:"otbc-20",series:"OTBC",cat:"rack",name:"OTBC-20",en:20,pwr:20,
+   specs:bat({g_Общие:{"Тип модуля":"OTBC-20","Исполнение":"Батарейный стеллаж","Энергоотдача":"20 кВ·ч","Номинальное напряжение":"480 В"},g_Батарейный_массив:{"Тип АКБ":"12V / 155 А·ч VRLA","Номинальное напряжение":"480 В","Срок службы":"12 лет"},g_Физические:{"Габариты ШхВхГ":"1000x860x1200 мм","Вес нетто":"~380 кг","Цвет":"RAL 9003"},g_Среда:{"Температура эксплуатации":"0-40C","Гарантия":"3 года"}})}
+];
+
+// ===== DISCHARGE DATA (parsed from PDF) =====
+const DISCHARGE_TABLE = {
+  models: [
+    {id:"dis_0",series:"DBCL",model:"DBCL 260-155"},
+    {id:"dis_1",series:"DBCL",model:"DBCL 260-170"},
+    {id:"dis_2",series:"DBCL",model:"DBCL 260-200"},
+    {id:"dis_3",series:"DBCL",model:"DBCL 260-211"},
+    {id:"dis_4",series:"DBCL",model:"DBCL 260-260"},
+    {id:"dis_5",series:"DBCL",model:"DBCL 260-300"},
+    {id:"dis_6",series:"DBCL",model:"DBCL 260-350"},
+    {id:"dis_7",series:"DBCL",model:"DBCL 260-480"},
+    {id:"dis_8",series:"DBCL",model:"DBCL 260-570"},
+    {id:"dis_9",series:"DBCL",model:"DBCL 260-670"},
+    {id:"dis_10",series:"DBCL",model:"DBCL 260-830"},
+    {id:"dis_11",series:"DBCL",model:"DBCL 260-900"},
+    {id:"dis_12",series:"DBCL",model:"DBCL 260-670x2"},
+    {id:"dis_13",series:"DBCL",model:"DBCL 260-670x3"},
+    {id:"dis_14",series:"DBCM",model:"DBCM 130-155"},
+    {id:"dis_15",series:"DBCM",model:"DBCM 130-170"},
+    {id:"dis_16",series:"DBCM",model:"DBCM 130-200"},
+    {id:"dis_17",series:"DBCM",model:"DBCM 130-211"},
+    {id:"dis_18",series:"DBCM",model:"DBCM 130-260"},
+    {id:"dis_19",series:"DBCM",model:"DBCM 130-300"},
+    {id:"dis_20",series:"DBCM",model:"DBCM 130-350"},
+    {id:"dis_21",series:"DBCM",model:"DBCM 130-480"},
+    {id:"dis_22",series:"DBCM",model:"DBCM 130-570"},
+    {id:"dis_23",series:"DBCM",model:"DBCM 130-670"},
+    {id:"dis_24",series:"DBCM",model:"DBCM 130-830"},
+    {id:"dis_25",series:"DBCM",model:"DBCM 130-900"},
+    {id:"dis_26",series:"DBCM",model:"DBCM 130-670x2"},
+    {id:"dis_27",series:"DBCM",model:"DBCM 130-670x3"}
+  ],
+  rows: {
+    1: [600,null,null,null,null,null,null,null,null,null,null,null,null,null,600,600,null,null,null,null,null,null,null,null,null,null,null,null],
+    2: [450,600,null,600,null,null,null,null,null,null,null,null,null,null,300,300,null,600,600,600,null,null,null,null,null,null,null,null],
+    3: [300,300,null,450,600,600,null,null,null,null,null,null,null,null,180,240,null,300,450,500,600,null,null,null,null,null,null,null],
+    4: [180,240,null,300,450,500,600,null,null,null,null,null,null,null,60,180,null,240,300,400,500,600,null,null,null,null,null,null],
+    5: [156,180,null,240,300,400,525,600,null,null,null,null,null,null,57,160,null,180,240,300,400,500,600,null,null,null,null,null],
+    6: [132,163,null,180,240,300,450,525,600,null,null,null,null,null,54,140,null,165,180,240,300,400,525,null,null,null,null,null],
+    7: [108,146,null,168,180,260,375,450,540,null,null,null,null,null,51,120,null,150,165,180,270,300,450,600,null,null,null,null],
+    8: [84,129,null,156,169,220,300,375,480,600,null,null,null,null,48,100,null,135,150,168,240,260,375,550,null,null,null,null],
+    9: [60,111,null,144,158,180,270,300,420,563,null,null,null,null,45,80,null,120,135,156,210,220,300,500,600,null,null,null],
+    10: [53,94,null,132,147,170,240,270,360,525,null,null,null,null,40,60,null,105,120,144,180,180,270,450,563,null,null,null],
+    11: [45,77,null,120,136,160,210,240,300,488,600,null,null,null,35,53,null,90,105,132,171,173,240,400,525,null,null,null],
+    12: [41,60,null,108,125,150,180,210,280,450,570,null,null,null,30,45,null,75,90,120,163,167,210,350,488,null,null,null],
+    13: [38,53,null,96,115,140,173,180,260,413,540,null,null,null,28,40,null,60,75,108,154,160,180,300,450,null,null,null],
+    14: [34,45,null,84,104,130,167,174,240,375,510,null,null,null,27,35,null,53,60,96,146,153,174,280,413,null,null,null],
+    15: [30,42,null,72,93,120,160,169,220,338,480,null,null,null,25,30,null,45,53,84,137,147,167,260,375,null,null,null],
+    16: [29,39,null,60,82,110,153,163,200,300,450,null,null,null,23,28,null,43,45,72,129,140,161,240,338,null,null,null],
+    17: [28,36,null,55,71,100,147,157,180,285,420,null,null,null,22,27,null,40,45,60,120,133,155,220,300,null,null,null],
+    18: [26,33,null,50,60,90,140,151,175,270,390,null,null,null,20,25,null,38,42,56,111,127,148,200,285,null,null,null],
+    19: [25,30,null,45,55,80,133,146,170,255,360,null,null,null,18,23,null,35,39,53,103,120,142,180,270,null,null,null],
+    20: [24,29,null,43,50,70,127,140,164,240,330,null,null,null,17,22,null,33,36,49,94,113,136,175,255,null,null,null],
+    21: [23,27,null,41,45,60,120,134,159,225,300,null,null,null,15,20,null,30,33,45,86,107,129,169,240,null,null,null],
+    22: [21,26,null,39,43,57,113,129,154,210,289,null,null,null,14,18,null,29,30,43,77,100,123,164,225,null,null,null],
+    23: [20,25,null,36,41,54,107,123,149,195,278,null,null,null,13,17,null,27,29,40,69,93,117,158,210,null,null,null],
+    24: [19,23,null,34,39,51,100,117,143,180,267,null,null,null,12,15,null,26,28,38,60,87,111,153,195,null,null,null],
+    25: [18,22,null,32,36,48,93,111,138,176,256,null,null,null,11,14,null,25,27,35,57,80,104,147,180,null,null,null],
+    26: [16,20,null,30,34,45,87,106,133,171,245,null,null,null,10,13,null,23,26,33,54,73,98,142,176,null,null,null],
+    27: [15,19,null,29,32,43,80,100,128,167,235,null,null,null,10,13,null,22,25,30,51,67,92,136,173,null,null,null],
+    28: [14,18,null,28,30,41,73,94,123,163,224,null,null,null,9,12,null,20,24,29,48,60,85,131,169,null,null,null],
+    29: [13,16,null,27,29,39,67,89,117,159,213,null,null,null,9,11,null,19,23,28,45,56,79,125,165,null,null,null],
+    30: [13,15,null,26,28,38,60,83,112,154,202,null,null,null,8,10,null,18,22,27,44,53,73,120,161,null,null,null],
+    31: [12,14,null,25,28,36,58,77,107,150,191,null,null,null,8,10,null,16,21,26,42,49,66,115,158,null,null,null],
+    32: [11,13,null,24,27,34,56,71,102,146,180,null,null,null,8,9,null,15,20,26,41,45,60,109,154,null,null,null],
+    33: [10,13,null,23,26,32,54,66,97,141,177,null,null,null,7,9,null,14,19,25,39,44,58,104,150,null,null,null],
+    34: [10,12,null,21,25,30,51,60,91,137,174,null,null,null,7,9,null,14,18,24,38,42,56,98,146,null,null,null],
+    35: [10,11,null,20,24,29,49,58,86,133,171,null,null,null,7,8,null,13,17,23,36,41,54,93,143,null,null,null],
+    36: [9,10,null,19,24,29,47,55,81,129,168,null,null,null,6,8,null,13,16,22,35,40,53,87,139,null,null,null],
+    37: [9,10,null,18,23,28,45,53,76,124,165,null,null,null,6,8,null,12,15,21,33,38,51,82,135,null,null,null],
+    38: [9,10,null,17,22,27,44,50,70,120,162,null,null,null,5,7,null,11,15,20,32,37,49,76,131,null,null,null],
+    39: [9,9,null,16,21,26,42,48,65,116,158,null,null,null,5,7,null,11,14,19,30,35,47,71,128,null,null,null],
+    40: [8,9,null,15,21,26,41,45,60,111,155,null,null,null,null,6,null,10,14,19,29,34,45,65,124,null,null,null],
+    41: [8,9,null,15,20,25,40,44,59,107,152,null,null,null,null,6,null,10,13,18,29,33,44,60,120,null,null,null],
+    42: [8,9,null,14,19,24,38,43,57,103,149,null,null,null,null,6,null,9,13,17,28,31,43,59,116,null,null,null],
+    43: [8,8,null,14,18,24,37,42,56,99,146,null,null,null,null,5,null,9,12,16,28,30,42,57,113,null,null,null],
+    44: [7,8,null,13,17,23,35,41,55,94,143,null,null,null,null,5,null,9,12,15,27,29,41,56,109,null,null,null],
+    45: [7,8,null,13,17,22,34,40,53,90,140,null,null,null,null,null,null,8,11,15,26,29,41,55,105,null,null,null],
+    46: [7,7,null,12,16,21,33,39,52,86,137,null,null,null,null,null,null,8,11,14,26,28,40,53,101,null,null,null],
+    47: [7,7,null,12,15,21,31,38,50,81,134,null,null,null,null,null,null,8,10,14,25,28,39,52,98,null,null,null],
+    48: [6,7,null,11,15,20,30,36,49,77,131,null,null,null,null,null,null,7,10,13,25,27,38,50,94,null,null,null],
+    49: [6,6,null,11,14,19,30,35,48,73,128,null,null,null,null,null,null,7,10,13,24,27,37,49,90,null,null,null],
+    50: [6,6,null,10,14,19,29,34,46,69,125,null,null,null,null,null,null,6,9,12,23,26,36,48,86,null,null,null],
+    51: [6,6,null,10,13,18,29,33,45,64,122,null,null,null,null,null,null,6,9,12,23,26,35,46,83,null,null,null],
+    52: [5,6,null,9,13,17,28,32,44,60,118,null,null,null,null,null,null,6,9,11,22,25,34,45,79,null,null,null],
+    53: [5,5,null,9,13,16,28,31,44,59,115,null,null,null,null,null,null,5,8,11,22,25,34,44,75,null,null,null],
+    54: [null,5,null,9,12,16,27,30,43,58,112,null,null,null,null,null,null,5,8,10,21,24,33,44,71,null,null,null],
+    55: [null,null,null,8,12,15,27,30,42,57,109,null,null,null,null,null,null,null,8,10,20,24,32,43,68,null,null,null],
+    56: [null,null,null,8,12,15,26,29,41,56,106,null,null,null,null,null,null,null,8,10,20,23,31,42,64,null,null,null],
+    57: [null,null,null,8,11,14,26,29,41,55,103,null,null,null,null,null,null,null,7,9,19,23,30,41,60,null,null,null],
+    58: [null,null,null,8,11,14,25,28,40,54,100,null,null,null,null,null,null,null,7,9,19,22,30,41,59,null,null,null],
+    59: [null,null,null,7,10,14,25,28,39,53,97,null,null,null,null,null,null,null,7,9,18,21,29,40,57,null,null,null],
+    60: [null,null,null,7,10,13,24,28,38,51,94,null,null,null,null,null,null,null,6,8,17,21,29,39,56,null,null,null],
+    61: [null,null,null,7,10,13,24,27,38,50,91,null,null,null,null,null,null,null,6,8,17,20,28,38,55,null,null,null],
+    62: [null,null,null,6,9,13,23,27,37,49,88,null,null,null,null,null,null,null,6,8,16,20,28,38,53,null,null,null],
+    63: [null,null,null,6,9,12,23,26,36,48,85,null,null,null,null,null,null,null,5,8,16,19,27,37,52,null,null,null],
+    64: [null,null,null,6,9,12,23,26,35,47,82,null,null,null,null,null,null,null,5,7,15,19,27,36,50,null,null,null],
+    65: [null,null,null,5,9,11,22,25,35,46,78,null,null,null,null,null,null,null,null,7,15,18,26,35,49,null,null,null],
+    66: [null,null,null,5,8,11,22,25,34,45,75,null,null,null,null,null,null,null,null,7,14,18,26,35,48,null,null,null],
+    67: [null,null,null,null,8,11,21,25,33,44,72,null,null,null,null,null,null,null,null,6,14,17,25,34,46,null,null,null],
+    68: [null,null,null,null,8,10,21,24,32,44,69,null,null,null,null,null,null,null,null,6,13,17,25,33,45,null,null,null],
+    69: [null,null,null,null,8,10,20,24,32,43,66,null,null,null,null,null,null,null,null,6,13,16,24,32,44,null,null,null],
+    70: [null,null,null,null,7,10,20,23,31,43,63,null,null,null,null,null,null,null,null,5,13,16,24,32,44,null,null,null],
+    71: [null,null,null,null,7,10,19,23,30,42,60,null,null,null,null,null,null,null,null,5,12,15,23,31,43,null,null,null],
+    72: [null,null,null,null,7,9,19,23,30,41,59,null,null,null,null,null,null,null,null,null,12,15,23,30,42,null,null,null],
+    73: [null,null,null,null,7,9,18,22,29,41,58,null,null,null,null,null,null,null,null,null,12,14,22,30,42,null,null,null],
+    74: [null,null,null,null,6,9,18,22,29,40,57,null,null,null,null,null,null,null,null,null,11,14,22,29,41,null,null,null],
+    75: [null,null,null,null,6,9,17,21,29,40,56,null,null,null,null,null,null,null,null,null,11,14,21,29,40,null,null,null],
+    76: [null,null,null,null,6,8,17,21,28,39,55,null,null,null,null,null,null,null,null,null,10,13,21,28,40,null,null,null],
+    77: [null,null,null,null,6,8,16,20,28,38,54,null,null,null,null,null,null,null,null,null,10,13,20,28,39,null,null,null],
+    78: [null,null,null,null,5,8,16,20,27,38,53,null,null,null,null,null,null,null,null,null,10,13,20,28,38,null,null,null],
+    79: [null,null,null,null,5,8,15,20,27,37,51,null,null,null,null,null,null,null,null,null,10,13,19,27,38,null,null,null],
+    80: [null,null,null,null,null,7,15,19,27,37,50,null,null,null,null,null,null,null,null,null,9,12,19,27,37,null,null,null],
+    81: [null,null,null,null,null,7,15,19,26,36,49,null,null,null,null,null,null,null,null,null,9,12,18,27,37,null,null,null],
+    82: [null,null,null,null,null,7,14,18,26,35,48,null,null,null,null,null,null,null,null,null,9,12,18,26,36,null,null,null],
+    83: [null,null,null,null,null,7,14,18,26,35,47,null,null,null,null,null,null,null,null,null,9,11,17,26,35,null,null,null],
+    84: [null,null,null,null,null,6,14,18,25,34,46,null,null,null,null,null,null,null,null,null,9,11,17,25,35,null,null,null],
+    85: [null,null,null,null,null,6,13,17,25,34,45,null,null,null,null,null,null,null,null,null,8,11,16,25,34,null,null,null],
+    86: [null,null,null,null,null,6,13,17,24,33,44,null,null,null,null,null,null,null,null,null,8,10,16,25,33,null,null,null],
+    87: [null,null,null,null,null,6,13,16,24,32,44,null,null,null,null,null,null,null,null,null,8,10,15,24,33,null,null,null],
+    88: [null,null,null,null,null,5,13,16,24,32,43,null,null,null,null,null,null,null,null,null,8,10,15,24,32,null,null,null],
+    89: [null,null,null,null,null,5,12,15,23,31,43,null,null,null,null,null,null,null,null,null,8,10,15,23,31,null,null,null],
+    90: [null,null,null,null,null,null,12,15,23,31,42,null,null,null,null,null,null,null,null,null,8,9,14,23,31,null,null,null],
+    91: [null,null,null,null,null,null,12,15,23,30,42,null,null,null,null,null,null,null,null,null,7,9,14,23,30,null,null,null],
+    92: [null,null,null,null,null,null,11,14,22,30,41,null,null,null,null,null,null,null,null,null,7,9,14,22,30,null,null,null],
+    93: [null,null,null,null,null,null,11,14,22,29,41,null,null,null,null,null,null,null,null,null,7,9,14,22,29,null,null,null],
+    94: [null,null,null,null,null,null,11,14,21,29,40,null,null,null,null,null,null,null,null,null,7,9,13,22,29,null,null,null],
+    95: [null,null,null,null,null,null,10,14,21,29,40,null,null,null,null,null,null,null,null,null,7,9,13,21,29,null,null,null],
+    96: [null,null,null,null,null,null,10,13,21,28,39,null,null,null,null,null,null,null,null,null,6,8,13,21,29,null,null,null],
+    97: [null,null,null,null,null,null,10,13,20,28,39,null,null,null,null,null,null,null,null,null,6,8,13,20,28,null,null,null],
+    98: [null,null,null,null,null,null,10,13,20,28,38,null,null,null,null,null,null,null,null,null,6,8,12,20,28,null,null,null],
+    99: [null,null,null,null,null,null,10,13,20,27,38,null,null,null,null,null,null,null,null,null,6,8,12,20,28,null,null,null],
+    100: [null,null,null,null,null,null,9,12,19,27,37,null,null,null,null,null,null,null,null,null,6,8,12,19,27,null,null,null],
+    101: [null,null,null,null,null,null,9,12,19,27,36,null,null,null,null,null,null,null,null,null,5,8,12,19,27,null,null,null],
+    102: [null,null,null,null,null,null,9,12,18,26,36,null,null,null,null,null,null,null,null,null,5,7,11,18,27,null,null,null],
+    103: [null,null,null,null,null,null,9,11,18,26,35,null,null,null,null,null,null,null,null,null,5,7,11,18,26,null,null,null],
+    104: [null,null,null,null,null,null,9,11,18,26,35,null,null,null,null,null,null,null,null,null,null,7,11,18,26,null,null,null],
+    105: [null,null,null,null,null,null,9,11,17,26,34,null,null,null,null,null,null,null,null,null,null,7,11,17,26,null,null,null],
+    106: [null,null,null,null,null,null,8,11,17,25,34,null,null,null,null,null,null,null,null,null,null,7,10,17,26,null,null,null],
+    107: [null,null,null,null,null,null,8,10,17,25,33,null,null,null,null,null,null,null,null,null,null,6,10,17,25,null,null,null],
+    108: [null,null,null,null,null,null,8,10,16,25,33,null,null,null,null,null,null,null,null,null,null,6,10,16,25,null,null,null],
+    109: [null,null,null,null,null,null,8,10,16,24,32,null,null,null,null,null,null,null,null,null,null,6,10,16,25,null,null,null],
+    110: [null,null,null,null,null,null,8,10,15,24,32,null,null,null,null,null,null,null,null,null,null,6,10,15,24,null,null,null],
+    111: [null,null,null,null,null,null,8,10,15,24,31,null,null,null,null,null,null,null,null,null,null,6,9,15,24,null,null,null],
+    112: [null,null,null,null,null,null,8,9,15,23,31,null,null,null,null,null,null,null,null,null,null,6,9,15,24,null,null,null],
+    113: [null,null,null,null,null,null,7,9,15,23,30,null,null,null,null,null,null,null,null,null,null,5,9,15,23,null,null,null],
+    114: [null,null,null,null,null,null,7,9,14,23,30,null,null,null,null,null,null,null,null,null,null,5,9,14,23,null,null,null],
+    115: [null,null,null,null,null,null,7,9,14,22,30,null,null,null,null,null,null,null,null,null,null,5,9,14,23,null,null,null],
+    116: [null,null,null,null,null,null,7,9,14,22,29,null,null,null,null,null,null,null,null,null,null,null,9,14,23,null,null,null],
+    117: [null,null,null,null,null,null,7,9,14,22,29,null,null,null,null,null,null,null,null,null,null,null,9,14,22,null,null,null],
+    118: [null,null,null,null,null,null,7,9,13,21,29,null,null,null,null,null,null,null,null,null,null,null,8,13,22,null,null,null],
+    119: [null,null,null,null,null,null,6,8,13,21,29,null,null,null,null,null,null,null,null,null,null,null,8,13,22,null,null,null],
+    120: [null,null,null,null,null,null,6,8,13,21,28,null,null,null,null,null,null,null,null,null,null,null,8,13,21,null,null,null],
+    121: [null,null,null,null,null,null,6,8,13,20,28,null,null,null,null,null,null,null,null,null,null,null,8,13,21,null,null,null],
+    122: [null,null,null,null,null,null,6,8,13,20,28,null,null,null,null,null,null,null,null,null,null,null,8,12,21,null,null,null],
+    123: [null,null,null,null,null,null,6,8,12,20,28,null,null,null,null,null,null,null,null,null,null,null,8,12,20,null,null,null],
+    124: [null,null,null,null,null,null,6,8,12,19,27,null,null,null,null,null,null,null,null,null,null,null,8,12,20,null,null,null],
+    125: [null,null,null,null,null,null,5,8,12,19,27,null,null,null,null,null,null,null,null,null,null,null,7,12,20,null,null,null],
+    126: [null,null,null,null,null,null,5,7,12,19,27,null,null,null,null,null,null,null,null,null,null,null,7,11,20,null,null,null],
+    127: [null,null,null,null,null,null,5,7,12,19,27,null,null,null,null,null,null,null,null,null,null,null,7,11,19,null,null,null],
+    128: [null,null,null,null,null,null,5,7,11,18,26,null,null,null,null,null,null,null,null,null,null,null,7,11,19,null,null,null],
+    129: [null,null,null,null,null,null,null,7,11,18,26,null,null,null,null,null,null,null,null,null,null,null,7,11,19,null,null,null],
+    130: [null,null,null,null,null,null,null,7,11,18,26,null,null,null,null,null,null,null,null,null,null,null,7,10,18,null,null,null],
+    131: [null,null,null,null,null,null,null,7,11,17,26,null,null,null,null,null,null,null,null,null,null,null,7,10,18,null,null,null],
+    132: [null,null,null,null,null,null,null,6,10,17,26,null,null,null,null,null,null,null,null,null,null,null,6,10,18,null,null,null],
+    133: [null,null,null,null,null,null,null,6,10,17,25,null,null,null,null,null,null,null,null,null,null,null,6,10,17,null,null,null],
+    134: [null,null,null,null,null,null,null,6,10,16,25,null,null,null,null,null,null,null,null,null,null,null,6,10,17,null,null,null],
+    135: [null,null,null,null,null,null,null,6,10,16,25,null,null,null,null,null,null,null,null,null,null,null,6,10,17,null,null,null],
+    136: [null,null,null,null,null,null,null,6,10,16,25,null,null,null,null,null,null,null,null,null,null,null,6,10,17,null,null,null],
+    137: [null,null,null,null,null,null,null,6,10,15,24,null,null,null,null,null,null,null,null,null,null,null,6,9,16,null,null,null],
+    138: [null,null,null,null,null,null,null,6,10,15,24,null,null,null,null,null,null,null,null,null,null,null,6,9,16,null,null,null],
+    139: [null,null,null,null,null,null,null,5,9,15,24,null,null,null,null,null,null,null,null,null,null,null,5,9,16,null,null,null],
+    140: [null,null,null,null,null,null,null,5,9,15,24,null,null,null,null,null,null,null,null,null,null,null,5,9,15,null,null,null],
+    141: [null,null,null,null,null,null,null,5,9,14,23,null,null,null,null,null,null,null,null,null,null,null,5,9,15,null,null,null],
+    142: [null,null,null,null,null,null,null,5,9,14,23,null,null,null,null,null,null,null,null,null,null,null,5,9,15,null,null,null],
+    143: [null,null,null,null,null,null,null,null,9,14,23,null,null,null,null,null,null,null,null,null,null,null,null,9,15,null,null,null],
+    144: [null,null,null,null,null,null,null,null,9,14,23,null,null,null,null,null,null,null,null,null,null,null,null,9,14,null,null,null],
+    145: [null,null,null,null,null,null,null,null,9,14,23,null,null,null,null,null,null,null,null,null,null,null,null,9,14,null,null,null],
+    146: [null,null,null,null,null,null,null,null,9,14,22,null,null,null,null,null,null,null,null,null,null,null,null,8,14,null,null,null],
+    147: [null,null,null,null,null,null,null,null,8,13,22,null,null,null,null,null,null,null,null,null,null,null,null,8,14,null,null,null],
+    148: [null,null,null,null,null,null,null,null,8,13,22,null,null,null,null,null,null,null,null,null,null,null,null,8,13,null,null,null],
+    149: [null,null,null,null,null,null,null,null,8,13,22,null,null,null,null,null,null,null,null,null,null,null,null,8,13,null,null,null],
+    150: [null,null,null,null,null,null,null,null,8,13,21,null,null,null,null,null,null,null,null,null,null,null,null,8,13,null,null,null],
+    151: [null,null,null,null,null,null,null,null,8,13,21,null,null,null,null,null,null,null,null,null,null,null,null,8,13,null,null,null],
+    152: [null,null,null,null,null,null,null,null,8,12,21,null,null,null,null,null,null,null,null,null,null,null,null,8,12,null,null,null],
+    153: [null,null,null,null,null,null,null,null,8,12,21,null,null,null,null,null,null,null,null,null,null,null,null,8,12,null,null,null],
+    154: [null,null,null,null,null,null,null,null,8,12,20,null,null,null,null,null,null,null,null,null,null,null,null,8,12,null,null,null],
+    155: [null,null,null,null,null,null,null,null,8,12,20,null,null,null,null,null,null,null,null,null,null,null,null,7,12,null,null,null],
+    156: [null,null,null,null,null,null,null,null,7,12,20,null,null,null,null,null,null,null,null,null,null,null,null,7,11,null,null,null],
+    157: [null,null,null,null,null,null,null,null,7,11,20,null,null,null,null,null,null,null,null,null,null,null,null,7,11,null,null,null],
+    158: [null,null,null,null,null,null,null,null,7,11,19,null,null,null,null,null,null,null,null,null,null,null,null,7,11,null,null,null],
+    159: [null,null,null,null,null,null,null,null,7,11,19,null,null,null,null,null,null,null,null,null,null,null,null,7,11,null,null,null],
+    160: [null,null,null,null,null,null,null,null,7,11,19,null,null,null,null,null,null,null,null,null,null,null,null,7,10,null,null,null],
+    161: [null,null,null,null,null,null,null,null,7,11,19,null,null,null,null,null,null,null,null,null,null,null,null,7,10,null,null,null],
+    162: [null,null,null,null,null,null,null,null,7,11,19,null,null,null,null,null,null,null,null,null,null,null,null,7,10,null,null,null],
+    163: [null,null,null,null,null,null,null,null,7,10,18,null,null,null,null,null,null,null,null,null,null,null,null,6,10,null,null,null],
+    164: [null,null,null,null,null,null,null,null,7,10,18,null,null,null,null,null,null,null,null,null,null,null,null,6,10,null,null,null],
+    165: [null,null,null,null,null,null,null,null,6,10,18,null,null,null,null,null,null,null,null,null,null,null,null,6,10,null,null,null],
+    166: [null,null,null,null,null,null,null,null,6,10,18,null,null,null,null,null,null,null,null,null,null,null,null,6,10,null,null,null],
+    167: [null,null,null,null,null,null,null,null,6,10,17,null,null,null,null,null,null,null,null,null,null,null,null,6,9,null,null,null],
+    168: [null,null,null,null,null,null,null,null,6,10,17,null,null,null,null,null,null,null,null,null,null,null,null,6,9,null,null,null],
+    169: [null,null,null,null,null,null,null,null,6,10,17,null,null,null,null,null,null,null,null,null,null,null,null,6,9,null,null,null],
+    170: [null,null,null,null,null,null,null,null,6,10,17,null,null,null,null,null,null,null,null,null,null,null,null,6,9,null,null,null],
+    171: [null,null,null,null,null,null,null,null,6,9,16,null,null,null,null,null,null,null,null,null,null,null,null,6,9,null,null,null],
+    172: [null,null,null,null,null,null,null,null,6,9,16,null,null,null,null,null,null,null,null,null,null,null,null,5,9,null,null,null],
+    173: [null,null,null,null,null,null,null,null,5,9,16,null,null,null,null,null,null,null,null,null,null,null,null,5,9,null,null,null],
+    174: [null,null,null,null,null,null,null,null,5,9,16,null,null,null,null,null,null,null,null,null,null,null,null,5,9,null,null,null],
+    175: [null,null,null,null,null,null,null,null,5,9,15,null,null,null,null,null,null,null,null,null,null,null,null,5,9,null,null,null],
+    176: [null,null,null,null,null,null,null,null,5,9,15,null,null,null,null,null,null,null,null,null,null,null,null,5,8,null,null,null],
+    177: [null,null,null,null,null,null,null,null,5,9,15,null,null,null,null,null,null,null,null,null,null,null,null,null,8,null,null,null],
+    178: [null,null,null,null,null,null,null,null,null,9,15,null,null,null,null,null,null,null,null,null,null,null,null,null,8,null,null,null],
+    179: [null,null,null,null,null,null,null,null,null,9,15,null,null,null,null,null,null,null,null,null,null,null,null,null,8,null,null,null],
+    180: [null,null,null,null,null,null,null,null,null,9,14,null,null,null,null,null,null,null,null,null,null,null,null,null,8,null,null,null],
+    181: [null,null,null,null,null,null,null,null,null,9,14,null,null,null,null,null,null,null,null,null,null,null,null,null,8,null,null,null],
+    182: [null,null,null,null,null,null,null,null,null,8,14,null,null,null,null,null,null,null,null,null,null,null,null,null,8,null,null,null],
+    183: [null,null,null,null,null,null,null,null,null,8,14,null,null,null,null,null,null,null,null,null,null,null,null,null,8,null,null,null],
+    184: [null,null,null,null,null,null,null,null,null,8,14,null,null,null,null,null,null,null,null,null,null,null,null,null,8,null,null,null],
+    185: [null,null,null,null,null,null,null,null,null,8,13,null,null,null,null,null,null,null,null,null,null,null,null,null,7,null,null,null],
+    186: [null,null,null,null,null,null,null,null,null,8,13,null,null,null,null,null,null,null,null,null,null,null,null,null,7,null,null,null],
+    187: [null,null,null,null,null,null,null,null,null,8,13,null,null,null,null,null,null,null,null,null,null,null,null,null,7,null,null,null],
+    188: [null,null,null,null,null,null,null,null,null,8,13,null,null,null,null,null,null,null,null,null,null,null,null,null,7,null,null,null],
+    189: [null,null,null,null,null,null,null,null,null,8,12,null,null,null,null,null,null,null,null,null,null,null,null,null,7,null,null,null],
+    190: [null,null,null,null,null,null,null,null,null,8,12,null,null,null,null,null,null,null,null,null,null,null,null,null,7,null,null,null],
+    191: [null,null,null,null,null,null,null,null,null,8,12,null,null,null,null,null,null,null,null,null,null,null,null,null,7,null,null,null],
+    192: [null,null,null,null,null,null,null,null,null,8,12,null,null,null,null,null,null,null,null,null,null,null,null,null,7,null,null,null],
+    193: [null,null,null,null,null,null,null,null,null,7,12,null,null,null,null,null,null,null,null,null,null,null,null,null,6,null,null,null],
+    194: [null,null,null,null,null,null,null,null,null,7,11,null,null,null,null,null,null,null,null,null,null,null,null,null,6,null,null,null],
+    195: [null,null,null,null,null,null,null,null,null,7,11,null,null,null,null,null,null,null,null,null,null,null,null,null,6,null,null,null],
+    196: [null,null,null,null,null,null,null,null,null,7,11,null,null,null,null,null,null,null,null,null,null,null,null,null,6,null,null,null],
+    197: [null,null,null,null,null,null,null,null,null,7,11,null,null,null,null,null,null,null,null,null,null,null,null,null,6,null,null,null],
+    198: [null,null,null,null,null,null,null,null,null,7,11,null,null,null,null,null,null,null,null,null,null,null,null,null,6,null,null,null],
+    199: [null,null,null,null,null,null,null,null,null,7,10,null,null,null,null,null,null,null,null,null,null,null,null,null,6,null,null,null],
+    200: [null,null,null,null,null,null,null,null,null,7,10,null,null,null,null,null,null,null,null,null,null,null,null,null,6,null,null,null],
+    201: [null,null,null,null,null,null,null,null,null,7,10,null,null,null,null,null,null,null,null,null,null,null,null,null,6,null,null,null],
+    202: [null,null,null,null,null,null,null,null,null,7,10,null,null,null,null,null,null,null,null,null,null,null,null,null,5,null,null,null],
+    203: [null,null,null,null,null,null,null,null,null,7,10,null,null,null,null,null,null,null,null,null,null,null,null,null,5,null,null,null],
+    204: [null,null,null,null,null,null,null,null,null,6,10,null,null,null,null,null,null,null,null,null,null,null,null,null,5,null,null,null],
+    205: [null,null,null,null,null,null,null,null,null,6,10,null,null,null,null,null,null,null,null,null,null,null,null,null,5,null,null,null],
+    206: [null,null,null,null,null,null,null,null,null,6,10,null,null,null,null,null,null,null,null,null,null,null,null,null,5,null,null,null],
+    207: [null,null,null,null,null,null,null,null,null,6,10,null,null,null,null,null,null,null,null,null,null,null,null,null,5,null,null,null],
+    208: [null,null,null,null,null,null,null,null,null,6,10,null,null,null,null,null,null,null,null,null,null,null,null,null,5,null,null,null],
+    209: [null,null,null,null,null,null,null,null,null,6,9,null,null,null,null,null,null,null,null,null,null,null,null,null,5,null,null,null],
+    210: [null,null,null,null,null,null,null,null,null,6,9,null,null,null,null,null,null,null,null,null,null,null,null,null,5,null,null,null],
+    211: [null,null,null,null,null,null,null,null,null,6,9,null,null,null,null,null,null,null,null,null,null,null,null,null,4,null,null,null],
+    212: [null,null,null,null,null,null,null,null,null,6,9,null,null,null,null,null,null,null,null,null,null,null,null,null,4,null,null,null],
+    213: [null,null,null,null,null,null,null,null,null,6,9,null,null,null,null,null,null,null,null,null,null,null,null,null,4,null,null,null],
+    214: [null,null,null,null,null,null,null,null,null,6,9,null,null,null,null,null,null,null,null,null,null,null,null,null,4,null,null,null],
+    215: [null,null,null,null,null,null,null,null,null,5,9,null,null,null,null,null,null,null,null,null,null,null,null,null,5,null,null,null],
+    216: [null,null,null,null,null,null,null,null,null,5,9,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    217: [null,null,null,null,null,null,null,null,null,5,9,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    218: [null,null,null,null,null,null,null,null,null,5,9,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    219: [null,null,null,null,null,null,null,null,null,5,9,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    220: [null,null,null,null,null,null,null,null,null,5,9,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    221: [null,null,null,null,null,null,null,null,null,null,9,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    222: [null,null,null,null,null,null,null,null,null,null,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    223: [null,null,null,null,null,null,null,null,null,null,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    224: [null,null,null,null,null,null,null,null,null,null,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    225: [null,null,null,null,null,null,null,null,null,null,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    226: [null,null,null,null,null,null,null,null,null,null,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    227: [null,null,null,null,null,null,null,null,null,null,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    228: [null,null,null,null,null,null,null,null,null,null,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    229: [null,null,null,null,null,null,null,null,null,null,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    230: [null,null,null,null,null,null,null,null,null,null,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    231: [null,null,null,null,null,null,null,null,null,null,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    232: [null,null,null,null,null,null,null,null,null,null,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    233: [null,null,null,null,null,null,null,null,null,null,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    234: [null,null,null,null,null,null,null,null,null,null,8,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    235: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    236: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    237: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    238: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    239: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    240: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    241: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    242: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    243: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    244: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    245: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    246: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    247: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    248: [null,null,null,null,null,null,null,null,null,null,7,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    249: [null,null,null,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    250: [null,null,null,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    251: [null,null,null,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    252: [null,null,null,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    253: [null,null,null,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    254: [null,null,null,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    255: [null,null,null,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    256: [null,null,null,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    257: [null,null,null,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    258: [null,null,null,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    259: [null,null,null,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    260: [null,null,null,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    261: [null,null,null,null,null,null,null,null,null,null,6,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    262: [null,null,null,null,null,null,null,null,null,null,5,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    263: [null,null,null,null,null,null,null,null,null,null,5,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    264: [null,null,null,null,null,null,null,null,null,null,5,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    265: [null,null,null,null,null,null,null,null,null,null,5,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    266: [null,null,null,null,null,null,null,null,null,null,5,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    267: [null,null,null,null,null,null,null,null,null,null,5,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    268: [null,null,null,null,null,null,null,null,null,null,5,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]
+  }
+};
+
+
+// ===== STATE =====
+let activeTab = 'ups';
+let filters = {cat:'all',pwr:[],bat:[],ser:[]};
+let selected = new Set();
+let upsSpecGroups = new Set(UPS_SG_ORDER);
+let batSpecGroups = new Set(BAT_SG_ORDER);
+let showDiff = false;
+
+function getData() { return activeTab === 'ups' ? U : activeTab === 'bat' ? BAT : []; }
+function getSG() { return activeTab === 'ups' ? upsSpecGroups : batSpecGroups; }
+function getSGOrder() { return activeTab === 'ups' ? UPS_SG_ORDER : BAT_SG_ORDER; }
+function getSGLabels() { return activeTab === 'ups' ? UPS_SG_LABELS : BAT_SG_LABELS; }
+
+// ===== FILTER =====
+function getF() {
+  let data = getData();
+  return data.filter(m => {
+    if (activeTab === 'ups') {
+      if (filters.cat!=='all' && m.cat!==filters.cat) return false;
+      if (filters.pwr.length) {
+        let ok = false;
+        for (let r of filters.pwr) {
+          if (r==='0-3'&&m.pwr<=3) ok=true;
+          if (r==='3-10'&&m.pwr>3&&m.pwr<=10) ok=true;
+          if (r==='10-30'&&m.pwr>10&&m.pwr<=30) ok=true;
+          if (r==='30-80'&&m.pwr>30&&m.pwr<=80) ok=true;
+          if (r==='80-200'&&m.pwr>80&&m.pwr<=200) ok=true;
+          if (r==='200+'&&m.pwr>200) ok=true;
+        }
+        if (!ok) return false;
+      }
+      if (filters.bat.length && !filters.bat.includes(m.bat)) return false;
+    } else {
+      // Battery tab filters
+      if (filters.cat!=='all' && m.cat!==filters.cat) return false;
+      if (filters.pwr.length) {
+        let ok = false;
+        for (let r of filters.pwr) {
+          if (r==='0-2'&&m.en<=2) ok=true;
+          if (r==='2-5'&&m.en>2&&m.en<=5) ok=true;
+          if (r==='5-10'&&m.en>5&&m.en<=10) ok=true;
+          if (r==='10-20'&&m.en>10&&m.en<=20) ok=true;
+          if (r==='20+'&&m.en>20) ok=true;
+        }
+        if (!ok) return false;
+      }
+    }
+    if (filters.ser.length && !filters.ser.includes(m.series)) return false;
+    return true;
+  });
+}
+
+// ===== RENDER =====
+function render() {
+  let f = getF();
+  let g = {};
+  for (let m of f) { if (!g[m.series]) g[m.series]=[]; g[m.series].push(m); }
+  let so = Object.keys(g).sort((a,b) => g[a][0].pwr - g[b][0].pwr);
+  let h = '';
+  for (let s of so) {
+    let items = g[s];
+    h += '<div class="section-title">' + s + ' <span class="section-count">' + items.length + ' моделей</span></div><div class="product-grid">';
+    for (let u of items) h += card(u);
+    h += '</div>';
+  }
+  if (!f.length) h = '<div class="no-results">Нет моделей. Измените фильтры.</div>';
+  document.getElementById('productGrid').innerHTML = h;
+  document.querySelectorAll('.product-card').forEach(c => c.addEventListener('click', function() { toggle(this.dataset.id); }));
+  updStats();
+}
+
+function card(m) {
+  let sel = selected.has(m.id);
+  if (activeTab === 'ups') {
+    return '<div class="product-card' + (sel?' selected':"") + '" data-id="' + m.id + '">' +
+      '<div class="product-series">' + m.series + '</div>' +
+      '<div class="product-name">' + m.name + '</div>' +
+      '<div class="product-tags">' +
+      '<span class="tag power">' + m.pwr + ' кВА / ' + m.kw + ' кВт</span>' +
+      '<span class="tag pf">PF=' + m.pf + '</span>' +
+      '<span class="tag battery">' + m.batLbl + '</span></div></div>';
+  } else {
+    return '<div class="product-card' + (sel?' selected':"") + '" data-id="' + m.id + '">' +
+      '<div class="product-series">' + m.series + '</div>' +
+      '<div class="product-name">' + m.name + '</div>' +
+      '<div class="product-tags">' +
+      '<span class="tag power">' + m.en + ' кВт·ч</span>' +
+      '<span class="tag pf">' + m.pwr + ' кВт</span>' +
+      '<span class="tag type">' + m.cat + '</span></div></div>';
+  }
+}
+
+function updStats() {
+  let f = getF();
+  document.getElementById('statTotal').textContent = f.length;
+  document.getElementById('statSelected').textContent = selected.size;
+  if (activeTab === 'ups') {
+    document.getElementById('statLabel2').textContent = 'Трехфазных:';
+    document.getElementById('statLabel3').textContent = 'Однофазных:';
+    document.getElementById('statP1').textContent = f.filter(m => m.cat==='three-phase').length;
+    document.getElementById('statP2').textContent = f.filter(m => m.cat==='single-phase').length;
+  } else {
+    document.getElementById('statLabel2').textContent = 'Напольных:';
+    document.getElementById('statLabel3').textContent = 'Стоечных/RT:';
+    document.getElementById('statP1').textContent = f.filter(m => m.cat==='cabinet'||m.cat==='lifepo4').length;
+    document.getElementById('statP2').textContent = f.filter(m => m.cat==='rt'||m.cat==='rack').length;
+  }
+}
+
+function parsePower(p) {
+  var m = p.match(/^(\d+)(?:x(\d+))?/);
+  if (!m) return 0;
+  return parseInt(m[1]) * (m[2] ? parseInt(m[2]) : 1);
+}
+function renderDis() {
+  let selSeries = document.getElementById('disSeriesFilter').value;
+  let selModel = document.getElementById('disModelFilter').value;
+  let selPower = document.getElementById('disPowerFilter').value;
+
+  // Filter models by series/model
+  let filtered = [];
+  for (let i = 0; i < DISCHARGE_TABLE.models.length; i++) {
+    let m = DISCHARGE_TABLE.models[i];
+    if (selSeries !== 'all' && m.series !== selSeries) continue;
+    if (selModel !== 'all' && m.model !== selModel) continue;
+    filtered.push({idx: i, series: m.series, model: m.model, id: m.id});
+  }
+
+  let wrap = document.getElementById('disTableWrap');
+  if (!filtered.length) {
+    wrap.innerHTML = '<p style="color:var(--text-secondary);padding:20px;text-align:center">Нет данных. Измените фильтры.</p>';
+    return;
+  }
+
+  let rows = DISCHARGE_TABLE.rows;
+  var loads = Object.keys(rows).map(Number).sort(function(a,b){return a-b;});
+
+  // Filter loads if specific power selected
+  if (selPower !== 'all') {
+    loads = loads.filter(function(l) { return l === Number(selPower); });
+  }
+
+  var h = '<table class="dis-table"><thead><tr><th>Нагрузка (кВт)</th>';
+  for (var i = 0; i < filtered.length; i++) {
+    h += '<th>' + filtered[i].model + '</th>';
+  }
+  h += '</tr></thead><tbody>';
+  for (var li = 0; li < loads.length; li++) {
+    var load = loads[li];
+    var vals = rows[load];
+    h += '<tr><td>' + load + '</td>';
+    for (var mi = 0; mi < filtered.length; mi++) {
+      var v = vals[filtered[mi].idx];
+      if (v !== null && v !== undefined) {
+        h += '<td class="kw-val">' + v + '</td>';
+      } else {
+        h += '<td style="color:var(--text-secondary)">—</td>';
+      }
+    }
+    h += '</tr>';
+  }
+  h += '</tbody></table>';
+  wrap.innerHTML = h;
+}
+
+function renderSer() {
+  let data = getData();
+  let all = [...new Set(data.map(m => m.series))].sort();
+  let h = all.map(s => '<button class="filter-btn' + (filters.ser.includes(s)?' active':"") + '" data-filter="ser" data-val="' + s + '">' + s + '</button>').join('');
+  document.getElementById('seriesFilters').innerHTML = h;
+}
+
+// ===== RENDER FILTERS =====
+function renderFilters() {
+  if (activeTab === 'ups') {
+    document.getElementById('filterCatRow').innerHTML =
+      '<button class="filter-btn active" data-filter="category" data-val="all">Все</button>' +
+      '<button class="filter-btn" data-filter="category" data-val="three-phase">Трехфазные</button>' +
+      '<button class="filter-btn" data-filter="category" data-val="single-phase">Однофазные</button>';
+    document.getElementById('filterPowerLabel').textContent = 'Мощность (кВА)';
+    document.getElementById('filterPowerRow').innerHTML =
+      '<button class="filter-btn" data-filter="power" data-val="0-3">до 3</button>' +
+      '<button class="filter-btn" data-filter="power" data-val="3-10">3-10</button>' +
+      '<button class="filter-btn" data-filter="power" data-val="10-30">10-30</button>' +
+      '<button class="filter-btn" data-filter="power" data-val="30-80">30-80</button>' +
+      '<button class="filter-btn" data-filter="power" data-val="80-200">80-200</button>' +
+      '<button class="filter-btn" data-filter="power" data-val="200+">>200</button>';
+    document.getElementById('filterOtherLabel').textContent = 'Тип батарей';
+    document.getElementById('filterOtherRow').innerHTML =
+      '<button class="filter-btn" data-filter="battery" data-val="external">Внешние</button>' +
+      '<button class="filter-btn" data-filter="battery" data-val="internal">Внутренние</button>';
+  } else {
+    document.getElementById('filterCatRow').innerHTML =
+      '<button class="filter-btn active" data-filter="category" data-val="all">Все</button>' +
+      '<button class="filter-btn" data-filter="category" data-val="cabinet">Напольные</button>' +
+      '<button class="filter-btn" data-filter="category" data-val="lifepo4">LiFePO4</button>' +
+      '<button class="filter-btn" data-filter="category" data-val="rt">RT модули</button>' +
+      '<button class="filter-btn" data-filter="category" data-val="rack">Стоечные/Стеллажи</button>';
+    document.getElementById('filterPowerLabel').textContent = 'Энергоотдача (кВт·ч)';
+    document.getElementById('filterPowerRow').innerHTML =
+      '<button class="filter-btn" data-filter="power" data-val="0-2">до 2</button>' +
+      '<button class="filter-btn" data-filter="power" data-val="2-5">2-5</button>' +
+      '<button class="filter-btn" data-filter="power" data-val="5-10">5-10</button>' +
+      '<button class="filter-btn" data-filter="power" data-val="10-20">10-20</button>' +
+      '<button class="filter-btn" data-filter="power" data-val="20+">>20</button>';
+    document.getElementById('filterOtherRow').innerHTML = '';
+    document.getElementById('filterOtherLabel').textContent = '';
+  }
+  // Restore active filters
+  document.querySelectorAll('.filter-btn[data-filter="category"]').forEach(b => {
+    if (b.dataset.val === filters.cat) b.classList.add('active');
+  });
+  if (activeTab === 'ups') {
+    document.querySelectorAll('.filter-btn[data-filter="battery"]').forEach(b => {
+      if (filters.bat.includes(b.dataset.val)) b.classList.add('active');
+    });
+  }
+  document.querySelectorAll('.filter-btn[data-filter="power"]').forEach(b => {
+    if (filters.pwr.includes(b.dataset.val)) b.classList.add('active');
+  });
+}
+
+// ===== CHIPS =====
+function renderChips() {
+  let data = getData();
+  let c = document.getElementById('compareChips');
+  let cl = document.getElementById('clearCompare');
+  let op = document.getElementById('openCompare');
+  if (!selected.size) {
+    c.innerHTML = '<span style="color:var(--text-secondary);font-size:13px;">Выберите модели из списка</span>';
+    cl.disabled = true; op.disabled = true; op.textContent = 'Сравнить (0)';
+    return;
+  }
+  cl.disabled = false; op.disabled = false; op.textContent = 'Сравнить (' + selected.size + ')';
+  let h = '';
+  for (let id of selected) {
+    let m = data.find(x => x.id === id);
+    if (!m) continue;
+    h += '<div class="compare-chip">' + m.name + '<span class="compare-chip-remove" data-id="' + id + '">&times;</span></div>';
+  }
+  c.innerHTML = h;
+  c.querySelectorAll('.compare-chip-remove').forEach(b => b.addEventListener('click', function(e) { e.stopPropagation(); toggle(this.dataset.id); }));
+}
+
+function toggle(id) {
+  selected.has(id) ? selected.delete(id) : selected.add(id);
+  render(); renderChips();
+}
+
+// ===== MODAL =====
+function openM() {
+  if (selected.size < 2) return;
+  showDiff = false;
+  document.getElementById('diffToggle').classList.remove('active');
+  let title = activeTab === 'ups' ? 'Сравнение ИБП' : 'Сравнение батарейных модулей';
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('compareModal').classList.add('open');
+  renderToggles(); renderTbl();
+}
+
+function closeM() { document.getElementById('compareModal').classList.remove('open'); }
+
+function renderToggles() {
+  let order = getSGOrder();
+  let labels = getSGLabels();
+  let groups = getSG();
+  let c = document.getElementById('specToggles');
+  let h = '';
+  for (let g of order) h += '<button class="spec-toggle' + (groups.has(g)?' active':"") + '" data-grp="' + g + '">' + labels[g] + '</button>';
+  c.innerHTML = h;
+  c.querySelectorAll('.spec-toggle').forEach(b => b.addEventListener('click', function() {
+    let g = this.dataset.grp;
+    let groups = getSG();
+    if (groups.has(g)) { if (groups.size > 1) groups.delete(g); } else groups.add(g);
+    renderToggles(); renderTbl();
+  }));
+}
+
+function renderTbl() {
+  let data = getData();
+  let ids = [...selected];
+  let ms = ids.map(id => data.find(m => m.id === id)).filter(Boolean);
+  let order = getSGOrder();
+  let labels = getSGLabels();
+  let groups = getSG();
+  let rows = [];
+  let seen = new Set();
+  for (let g of order) {
+    if (!groups.has(g)) continue;
+    let keys = [];
+    for (let m of ms) if (m.specs[g]) for (let k of Object.keys(m.specs[g])) if (!seen.has(g+'|'+k)) { seen.add(g+'|'+k); keys.push(k); }
+    for (let k of keys) rows.push({g, k});
+  }
+  if (showDiff && ms.length > 1) {
+    rows = rows.filter(r => {
+      let vals = ms.map(m => (m.specs[r.g] && m.specs[r.g][r.k]) || '-');
+      return new Set(vals).size > 1;
+    });
+  }
+  let curG = null;
+  let h = '<thead><tr><th>Характеристика</th>';
+  for (let m of ms) h += '<th><button class="remove-model-btn" data-id="' + m.id + '" title="Убрать">&times;</button>' + m.name + '<br><small style="color:var(--text-secondary);font-weight:400;">' + m.series + '</small></th>';
+  h += '</tr></thead><tbody>';
+  for (let r of rows) {
+    if (r.g !== curG) { curG = r.g; h += '<tr class="spec-group-header"><td colspan="' + (ms.length+1) + '">' + (labels[r.g]||r.g) + '</td></tr>'; }
+    h += '<tr><td>' + r.k + '</td>';
+    for (let m of ms) h += '<td>' + ((m.specs[r.g] && m.specs[r.g][r.k]) || '-') + '</td>';
+    h += '</tr>';
+  }
+  h += '</tbody>';
+  document.getElementById('compareTable').innerHTML = h;
+  document.querySelectorAll('.remove-model-btn').forEach(b => b.addEventListener('click', function(e) {
+    e.stopPropagation();
+    selected.delete(this.dataset.id);
+    renderChips(); render();
+    if (selected.size >= 2) { renderTbl(); renderToggles(); } else closeM();
+  }));
+}
+
+// ===== TAB SWITCH =====
+function switchTab(tab) {
+  activeTab = tab;
+  selected.clear();
+  showDiff = false;
+  filters = {cat:'all',pwr:[],bat:[],ser:[]};
+  upsSpecGroups = new Set(UPS_SG_ORDER);
+  batSpecGroups = new Set(BAT_SG_ORDER);
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.getElementById('headerSub').textContent = tab === 'ups' ? 'Подбор и сравнение ИБП — все технические характеристики' : tab === 'bat' ? 'Подбор и сравнение батарейных модулей' : 'Разрядные таблицы — батарейные шкафы DBCL/DBCM';
+  document.getElementById('filtersWrap').style.display = tab === 'dis' ? 'none' : '';
+  document.getElementById('productGrid').style.display = tab === 'dis' ? 'none' : '';
+  document.getElementById('disTabContent').style.display = tab === 'dis' ? '' : 'none';
+  if (tab === 'dis') {
+    populateDisFilters();
+    renderDis();
+  } else {
+    renderFilters();
+    renderSer();
+    render();
+    renderChips();
+    updStats();
+  }
+}
+
+// ===== EVENT HANDLERS =====
+document.querySelector('.tab-bar').addEventListener('click', function(e) {
+  let btn = e.target.closest('.tab-btn');
+  if (btn && btn.dataset.tab !== activeTab) switchTab(btn.dataset.tab);
+});
+
+document.getElementById('filtersWrap').addEventListener('click', function(e) {
+  let b = e.target.closest('.filter-btn');
+  if (!b) return;
+  let f = b.dataset.filter, v = b.dataset.val;
+  if (f === 'category') {
+    document.querySelectorAll('.filter-btn[data-filter="category"]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    filters.cat = v;
+  } else if (f === 'power') {
+    b.classList.toggle('active');
+    let i = filters.pwr.indexOf(v);
+    i >= 0 ? filters.pwr.splice(i,1) : filters.pwr.push(v);
+  } else if (f === 'battery') {
+    b.classList.toggle('active');
+    let i = filters.bat.indexOf(v);
+    i >= 0 ? filters.bat.splice(i,1) : filters.bat.push(v);
+  } else if (f === 'ser') {
+    b.classList.toggle('active');
+    let i = filters.ser.indexOf(v);
+    i >= 0 ? filters.ser.splice(i,1) : filters.ser.push(v);
+  }
+  render(); renderSer(); updStats();
+});
+
+document.getElementById('resetFilters').addEventListener('click', function() {
+  filters = {cat:'all',pwr:[],bat:[],ser:[]};
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.filter-btn[data-filter="category"][data-val="all"]').classList.add('active');
+  render(); renderSer(); updStats();
+});
+
+document.getElementById('clearCompare').addEventListener('click', function() { selected.clear(); render(); renderChips(); });
+document.getElementById('openCompare').addEventListener('click', openM);
+document.getElementById('closeModal').addEventListener('click', closeM);
+document.getElementById('compareModal').addEventListener('click', function(e) { if (e.target === this) closeM(); });
+document.getElementById('diffToggle').addEventListener('click', function() {
+  showDiff = !showDiff;
+  this.classList.toggle('active');
+  renderTbl();
+});
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeM(); });
+
+// ===== DISCHARGE TAB EVENTS =====
+function populateDisFilters() {
+  var seriesEl = document.getElementById('disSeriesFilter');
+  var model = document.getElementById('disModelFilter');
+  var power = document.getElementById('disPowerFilter');
+
+  // Populate model dropdown
+  var selSeries = seriesEl.value;
+  var models = DISCHARGE_TABLE.models.filter(function(m) { return selSeries === 'all' || m.series === selSeries; });
+  var modelNames = models.map(function(m) { return m.model; }).sort();
+  model.innerHTML = '<option value="all">Все</option>' + modelNames.map(function(n) { return '<option value="' + n + '">' + n + '</option>'; }).join('');
+
+  // Populate power (load) dropdown from DISCHARGE_TABLE rows
+  var loads = Object.keys(DISCHARGE_TABLE.rows).map(Number).sort(function(a,b){return a-b;});
+  power.innerHTML = '<option value="all">Все</option>' + loads.map(function(l) { return '<option value="' + l + '">' + l + ' кВт</option>'; }).join('');
+}
+
+document.getElementById('disSeriesFilter').addEventListener('change', function() {
+  populateDisFilters();
+  renderDis();
+});
+
+document.getElementById('disModelFilter').addEventListener('change', renderDis);
+document.getElementById('disPowerFilter').addEventListener('change', renderDis);
+document.getElementById('disRefresh').addEventListener('click', renderDis);
+
+// ===== INIT =====
+switchTab('ups');
+</script>
+</body>
+</html>
